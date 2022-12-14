@@ -1,0 +1,2 @@
+def pow():
+    print("pow")
