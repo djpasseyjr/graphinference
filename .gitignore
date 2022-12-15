@@ -1,7 +1,18 @@
-# Local graphinference specific environment
+## Local graphinference specific files and folders
 graphinf_env/*
 Notebooks/PrivateNotebooks/*
 .DS_Store
+*.code-workspace
+
+# Latex
+
+*.aux
+*.fdb_latexmk
+*.fls
+*.synctex.gz
+
+
+## Boilerplate Python .gitignore:
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
