@@ -12,7 +12,7 @@ ecos==2.0.10
 entrypoints==0.4
 executing==1.2.0
 fonttools==4.38.0
--e git+https://github.com/djpasseyjr/graphinference.git@65817a6c078a039c559915d018e612d3da2764fb#egg=graphinference
+-e git+https://github.com/djpasseyjr/graphinference.git@40797dac160d135dac8e4c43f86c84ed75f78b6f#egg=graphinference
 h5py==3.7.0
 -e git+https://github.com/pwollstadt/IDTxl.git@16c6cc52e31ec79f8ec18cd4ea107a7b76525ca2#egg=idtxl
 ipykernel==6.19.2
@@ -33,6 +33,7 @@ numpy==1.23.5
 packaging==22.0
 pandas==1.5.2
 parso==0.8.3
+patsy==0.5.3
 pexpect==4.8.0
 pickleshare==0.7.5
 Pillow==9.3.0
@@ -54,6 +55,7 @@ pyzmq==24.0.1
 scipy==1.9.3
 six==1.16.0
 stack-data==0.6.2
+statsmodels==0.13.5
 style==1.1.0
 tornado==6.2
 traitlets==5.7.1
