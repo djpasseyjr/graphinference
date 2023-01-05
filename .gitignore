@@ -1,8 +1,10 @@
 ## Local graphinference specific files and folders
-graphinf_env/*
+graphinf_venv/*
+renv/*
 Notebooks/PrivateNotebooks/*
 .DS_Store
 *.code-workspace
+.Rprofile
 
 # Latex
 

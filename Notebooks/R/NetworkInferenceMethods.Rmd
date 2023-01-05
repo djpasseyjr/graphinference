@@ -1,0 +1,89 @@
+---
+title: "Network Inference Methods in R"
+output: pdf_document
+author: "DJ Passey"
+date: "Jan 4, 2023"
+header-includes:
+     - \renewcommand{\familydefault}{\sfdefault}
+---
+```{r, setup, echo=FALSE}
+library(renv)
+library(here)
+# Activate R virtual environment
+# The `here()` function should locate the top level
+# directory of the enclosing git repository called `graphinference`
+proj_dir = here()
+print(cat("Double check that project directory\n",
+          "is named graphinference:\n", 
+          "`proj_dir =`", proj_dir, "\n"))
+
+renv::activate(here())
+
+# Activate python virtual environment
+# This will not work unless the python virtual environment is named
+# `graphinf_venv` and located in the first level of the repo.
+#
+# Follow the instructions in `graphinference/README.md` to install
+# the python virtual environment properly.
+library(reticulate)
+reticulate::use_python(paste0(proj_dir, "/graphinf_venv/bin/python3"))
+
+library(graphicalVAR)
+```
+# Exploring Graph Inference Methods in R
+
+This notebook explores techniques from R to infer a network underlying
+time series data.
+
+## Generate Test Data
+
+We use a stochastic dynamical system to generate a time series where the variables influence each other according to a fixed adjacency matrix.
+
+The underlying stochastic model is an order one vector auto-regressive process of the form
+
+$$
+\mathbf{x}_t = \epsilon A \mathbf{x}_{t-1} + \mathbf{e}_t
+$$
+
+where $\epsilon$ is the coupling strength, $A$ is an adjacency matrix and $\mathbf{e}_t$ is the multivariate Gaussian error term with mean $\mathbf{0}$ and covariance $\frac{\sigma^2 \tau}{n}I$. Here $\tau$ is the  characteristic time, $\sigma$ is the intrinsic noise strength and $n$ is the dimension of the time series.
+```{python}
+import networkx as nx
+import numpy as np
+
+import graphinference.libs.qspems_sim_core as qspems_sim_core
+
+# Erdos Renyi network
+num_nodes = 5
+mean_degree = 2
+edge_prob = mean_degree / num_nodes
+er = nx.erdos_renyi_graph(num_nodes, edge_prob)
+adj = nx.adjacency_matrix(er).toarray()
+
+# Stochastic model to generate time series. Compare to the
+# jupyter notebook "../Jupyter/NetworkInferenceMethods.ipynb"
+stochastic_timeseries = qspems_sim_core.sim(adj, dt=1.0, sigma=0.1)
+```
+
+## Apply GraphicalVAR
+
+Next we use the graphical VAR method to try to fit a type of vector auto
+regressive model and fit a network to that model.
+
+```{r}
+# Run graphical VAR
+gVAR_of_qpsems_sim <- graphicalVAR(t(py$stochastic_timeseries), gamma = 0)
+
+# Plot the predicted network on the left
+layout(t(1:2))
+plot(gVAR_of_qpsems_sim, "PDC", layout="circle")
+# Save PDC matrix
+qpsems_PDC = gVAR_of_qpsems_sim$PDC
+
+# Replace with adj matrix that underpinned the simulation
+gVAR_of_qpsems_sim$PDC = py$adj
+
+# Plot the true network on the right
+plot(gVAR_of_qpsems_sim, "PDC", layout="circle")
+```
+
+Graphical VAR correctly identifies every edge in the network! If we view this notebook as a continuation of `../Jupyter/NetworkInferenceMethods.ipynb` then every network method investigated so far has correctly reproduced the underlying network in the first order vector auto-regressive model.
