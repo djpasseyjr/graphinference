@@ -61,7 +61,9 @@ See [this stack overflow answer](https://stackoverflow.com/questions/22842743/ho
 If you are using Windows, I wish you and DOS the *very* best.
 
 **2. Clone Repo**
-
+```
+git clone https://github.com/djpasseyjr/graphinference.git
+```
 
 **3. Create and Activate Virtual Environment**
 
