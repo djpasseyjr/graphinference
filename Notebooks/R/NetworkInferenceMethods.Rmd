@@ -139,3 +139,8 @@ knitr::include_graphics(gimme_plot_file)
 ```
 
 It's interesting that the unified SEM model, one, makes the distinction between lagged (dashed edge) and contemporaneous (solid edges) in the model. However, it does discover some spurious edges, unlike any other method that we have explored so far.
+
+```{r}
+# Delete temporary gimme output directory
+unlink(paste0(proj_dir, "Notebooks/R/tmp"), recursive = TRUE)
+```
