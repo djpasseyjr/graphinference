@@ -27,7 +27,7 @@ import graphinference.libs.qspems_sim_core as qspems_sim_core
 adjacency_matrix = (np.random.rand(5, 5) < .2).astype(float)
 
 # Generate the time series
-stochastic_timeseries = qspems_sim_core.sim(adj, dt=1.0, sigma=.05)
+stochastic_timeseries = qspems_sim_core.sim(adjacency_matrix, dt=1.0, sigma=.05)
 
 # Plot
 plt.plot(stochastic_timeseries.T, alpha=.5)
