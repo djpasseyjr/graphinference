@@ -1,6 +1,7 @@
 ## Local graphinference specific files and folders
 graphinf_venv/*
 renv/*
+tmp/
 Notebooks/PrivateNotebooks/*
 .DS_Store
 *.code-workspace

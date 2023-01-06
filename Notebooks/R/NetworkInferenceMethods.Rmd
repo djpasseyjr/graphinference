@@ -6,7 +6,7 @@ date: "Jan 4, 2023"
 header-includes:
      - \renewcommand{\familydefault}{\sfdefault}
 ---
-```{r, setup, echo=FALSE}
+```{r, setup}
 library(renv)
 library(here)
 # Activate R virtual environment
@@ -30,6 +30,18 @@ reticulate::use_python(paste0(proj_dir, "/graphinf_venv/bin/python3"))
 
 library(graphicalVAR)
 ```
+```{python}
+import networkx as nx
+import numpy as np
+import random
+
+import graphinference.libs.qspems_sim_core as qspems_sim_core
+
+random.seed(111)
+np.random.seed(111)
+rng = np.random.RandomState(111)
+```
+
 # Exploring Graph Inference Methods in R
 
 This notebook explores techniques from R to infer a network underlying
@@ -46,17 +58,13 @@ $$
 $$
 
 where $\epsilon$ is the coupling strength, $A$ is an adjacency matrix and $\mathbf{e}_t$ is the multivariate Gaussian error term with mean $\mathbf{0}$ and covariance $\frac{\sigma^2 \tau}{n}I$. Here $\tau$ is the  characteristic time, $\sigma$ is the intrinsic noise strength and $n$ is the dimension of the time series.
+
 ```{python}
-import networkx as nx
-import numpy as np
-
-import graphinference.libs.qspems_sim_core as qspems_sim_core
-
 # Erdos Renyi network
 num_nodes = 5
 mean_degree = 2
 edge_prob = mean_degree / num_nodes
-er = nx.erdos_renyi_graph(num_nodes, edge_prob)
+er = nx.erdos_renyi_graph(num_nodes, edge_prob, seed=rng)
 adj = nx.adjacency_matrix(er).toarray()
 
 # Stochastic model to generate time series. Compare to the
@@ -87,3 +95,47 @@ plot(gVAR_of_qpsems_sim, "PDC", layout="circle")
 ```
 
 Graphical VAR correctly identifies every edge in the network! If we view this notebook as a continuation of `../Jupyter/NetworkInferenceMethods.ipynb` then every network method investigated so far has correctly reproduced the underlying network in the first order vector auto-regressive model.
+
+## Apply gimme (unified structural equation model)
+
+```{r}
+# temporary gimme input and output directories relative to project directory
+gimme_input_dir <- "/Notebooks/R/tmp/gimme_input/"
+gimme_output_dir <- "/Notebooks/R/tmp/gimme_output/"
+
+dir.create(paste0(proj_dir, "/Notebooks/R/tmp"))
+dir.create(paste0(proj_dir, gimme_input_dir))
+dir.create(paste0(proj_dir, gimme_output_dir))
+```
+
+```{python}
+# Save file to 
+np.savetxt(
+  r.proj_dir + r.gimme_input_dir + "stochastic_ts.csv", 
+  stochastic_timeseries.T, 
+  delimiter=","
+)
+```
+
+```{r}
+fit <- gimme::gimmeSEM(
+  data = paste0(proj_dir, gimme_input_dir),
+  out = paste0(proj_dir, gimme_output_dir),
+  sep = ",",
+  header = FALSE,
+  ar = TRUE,
+  plot = TRUE,
+  subgroup = FALSE,
+  paths = NULL,  # option to list paths that will be group-level (semi-confirmatory)
+  groupcutoff = .75,  # the proportion that is considered the majority at the group level
+  subcutoff = .5  # the proportion that is considered the majority at the subgroup level
+)
+```
+
+
+```{r, out.width="\\linewidth", include=TRUE, fig.align="center", fig.cap=c("Network predicted by gimme (unified structural equation model). Dashed lines indicate lag-1 relationships and solid indicate contemporaneous relationships.")}
+gimme_plot_file = paste0(proj_dir, gimme_output_dir, "summaryPathsPlot.pdf")
+knitr::include_graphics(gimme_plot_file)
+```
+
+It's interesting that the unified SEM model, one, makes the distinction between lagged (dashed edge) and contemporaneous (solid edges) in the model. However, it does discover some spurious edges, unlike any other method that we have explored so far.
