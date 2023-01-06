@@ -1,14 +1,26 @@
 ## Local graphinference specific files and folders
-graphinf_venv/*
-renv/*
+graphinf_venv/
+renv/
 tmp/
 Notebooks/PrivateNotebooks/*
 .DS_Store
 *.code-workspace
+
+## R
 .Rprofile
 
-# Latex
+# History files
+.Rhistory
+.Rapp.history
 
+# Session Data files
+.RData
+.RDataTmp
+
+# User-specific files
+.Ruserdata
+
+# Latex
 *.aux
 *.fdb_latexmk
 *.fls
