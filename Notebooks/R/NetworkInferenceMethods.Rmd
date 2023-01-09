@@ -69,7 +69,7 @@ adj = nx.adjacency_matrix(er).toarray()
 
 # Stochastic model to generate time series. Compare to the
 # jupyter notebook "../Jupyter/NetworkInferenceMethods.ipynb"
-stochastic_timeseries = qspems_sim_core.sim(adj, dt=1.0, sigma=0.1)
+stochastic_timeseries = qspems_sim_core.sim(adj, dt=1.0, sigma=0.01)
 ```
 
 ## Apply GraphicalVAR

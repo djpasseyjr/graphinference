@@ -7,5 +7,44 @@
 \begin{document}
 \maketitle
 
-    First line of doc.
+\section{Understanding the Limitations of Vector Autoregression}
+
+    In Stock 2001, the authors point out, "The Taylor [rule] is “backward 
+    looking” in the sense that the Fed reacts to past information..., 
+    and several researchers have argued that Fed behavior is more
+    appropriately described by forward looking behavior."
+    Though not addressing autoregression directly, this makes an
+    interesting point about how autoregression, and most models are
+    "backward looking" while real world processes involve
+    anticipating the future.
+    The authors go on to explain that the Taylor rule was updated
+    to respond to the autoregressive prediction of what inflation
+    would be in the near future. It is interesting to note that
+    while this new model does incoorperate a notion of predicting
+    the future, mathematically, it is still completely backward looking.
+    Later, the authors mention the following issues: 
+    \begin{enumerate}
+        \item "The
+        standard methods of statistical inference (such as computing 
+        standard errors for impulse responses) may give misleading 
+        results if some of the variables are highly persistent [8].
+        Another limitation is that, without modification, standard 
+        VARs miss nonlinearities, conditional heteroskedasticity, and
+        drifts or breaks in parameters."
+        \item "While useful as a benchmark, small
+        VARs of two or three variables are often unstable and thus poor predictors of the future
+        (Stock and Watson [1996])."
+        \item "However, adding variables to the VAR creates complications, because the
+        number of VAR parameters increases as the square of the number of variables: a ninevariable, four-lag VAR has 333 unknown coefficients (including the intercepts).
+        Unfortunately, macroeconomic time series data cannot provide reliable estimates of all
+        these coefficients without further restrictions."
+        \item "a common assumption made in
+        structural VARs is that variables like output and inflation
+        are sticky and do respond “within the period” to monetary 
+        policy shocks. This seems plausible over the period of a 
+        single day, but becomes less plausible over a month or
+        quarter."
+    \end{enumerate}
+
+
 \end{document}
