@@ -1,5 +1,6 @@
 \documentclass{article}
 \usepackage{amsmath}
+\usepackage{amssymb}
 
 \title{Graph Inference on Timeseries Data}
 \author{D.J. Passey}
@@ -35,7 +36,8 @@
         VARs of two or three variables are often unstable and thus poor predictors of the future
         (Stock and Watson [1996])."
         \item "However, adding variables to the VAR creates complications, because the
-        number of VAR parameters increases as the square of the number of variables: a ninevariable, four-lag VAR has 333 unknown coefficients (including the intercepts).
+        number of VAR parameters increases as the square of the number of variables: a ninevariable,
+        four-lag VAR has 333 unknown coefficients (including the intercepts).
         Unfortunately, macroeconomic time series data cannot provide reliable estimates of all
         these coefficients without further restrictions."
         \item "a common assumption made in
@@ -45,6 +47,205 @@
         single day, but becomes less plausible over a month or
         quarter."
     \end{enumerate}
+
+    \section{Working through the assumptions behind VAR in \textit{Multivariate
+    Time Series Analysis} by Tsay}
+   
+        Tsay defines a multivariate time series as
+        \[
+            \mathbf{z}_t = (z_{1t}, \cdots, z_{kt})'
+        \]
+    
+        The problem of interest is defined as predicting $\mathbf{z}_{T+1}$ based on
+        the data $\{\mathbf{z}_1, \cdots, \mathbf{z}_T\}$. At this point an abstract
+        model, $g(.)$ is employed to solve the problem via
+        \[
+            \dot{\mathbf{z}}_{T+1} = g(\mathbf{z}_T, \mathbf{z}_{T-1}, \cdots, \mathbf{z}_1)
+        \]
+    
+        This formulation is great for pedagogical use, but I'll explore
+        some of the details that it obscures. Often, the goal is not
+        simply to predict $\mathbf{z}_{T+1}$ but rather to gain
+        insight into the dynamics of the data-generating process. Vector
+        auto-regression is a powerful tool, not because of it's
+        predictive power, but because of the statistical guarantees
+        attached to its \textit{explanations} for why the behavior
+        occurred. This distinction is important because prediction
+        tasks are somewhat model agnostic. That is to say that
+        the prediction task doesn't care what kind of model made
+        a given prediction, only if it was a better prediction
+        than another model.
+   
+   
+        On the other hand, for explanatory tools the details of the model
+        are fundamental. Understanding the assumptions, the structure,
+        and common failure modes of an explanitory model are vital if 
+        one is to interpret results relative to a particular phenomenon.
+    
+        Another way of framing this problem is by assuming an underlying
+        data generating process $f$. It is hard to go much father than this
+        without assumptions about $f$. Is it a discrete time system?
+        Is it a continuous system? Is it a hybrid? Can it be described
+        as a system at all?
+    
+        Maybe we can start by assuming that the time series
+        data of interest belongs to the physical world,
+        (since it can be
+        measured) and therefore, it occurred because of some general
+        system.
+    
+        Our task is to understand and explain a small piece of
+        the process that created the data. Then we can say that
+        the data-generating process $f$ can tell us what the next
+        data point will be, given the history of all previous data
+        points \textit{along with} the complete state of 
+        the world.
+    
+        Then, we model this data generating process by buildig $g$,
+        the function that tries to \textit{explain} how the data
+        came to be.
+    
+        For complex systems, an explanitory model is unlikely to
+        be able to explain very much. In the social sciences,
+        there is so much change in the system of interest, that it might
+        be incorrect to assume that the underlying model $g$ is constant.
+        But, by making simplifications, we can identify and explain
+        certain patterns and processes that occur in the world.
+    
+        At this point, the model $g$ has no structure. It can be anything.
+        Agent based, a lookup table, a differential equation, a
+        branching process, a difference equation.
+    
+        Some models are optimized to fit to the data, and based on 
+        the optimization technique used, we can infer patterns and 
+        structure in the data generating process based on the parameters.
+        
+        Other models have far fewer parameters and do not need optimized
+        statistical fitting. They offer an explanation by their structure
+        rather than through parameters and p-values.
+    
+        Vector auto regression begins with a choice to restrict $g$
+        to a class of dynamical system that is not as expressive as 
+        other choices would be.
+        Namely,
+    
+        \begin{equation}
+            \dot{\mathbf{z}}_{T+1} = \mathbf{\pi}_0 
+                + \mathbf{\pi}_1\mathbf{z}_T 
+                + \mathbf{\pi}_2\mathbf{z}_{T-1} 
+                + \cdots 
+                + \mathbf{\pi}_T\mathbf{z}_1
+        \end{equation}
+
+        where each $\mathbf{\pi}_i$ is a $k \times k$ matrix.
+
+        Tsay assumes that the time series follows
+        a contimuous multivariate distribution. 
+
+        \subsection{Definition: Weakly Stationary}
+            A timeseries is said to be weakly stationary if $E[\mathbf{z}_t]
+            = \mathbf{mu} \forall t$ and if $\text{Cov}[\mathbf{z}_t] = \Sigma_\mathbf{z}$
+        
+        \subsection{Definition: Linear Time Series}
+            A k dimensional time series $\mathbf{z}_t$ is said to be linear
+            if
+            \begin{equation}
+                 \mathbf{z}_t = \mathbf{\mu} + \sum_{i=0}^\infty \mathbf{\psi}_i \mathbf{a}_{t-i}
+            \end{equation}
+
+            where $\mathbf{\mu}$ is a $k$-dimensional constant vector, 
+            $\mathbf{\psi}_0 = I$, the $k \times k$
+            identity matrix, $\mathbf{\psi}_i$ ($i > 0$) are $k \times k$
+            constant matrices and $\{\mathbf{a}_t\}$ is a sequence of 
+            idependent identically distributed random vectors with
+            mean zero and positive definite covariance matrix $\Sigma_\mathbf{a}$
+
+
+        \subsection{Wold Decomposition}
+            A stationary, purely stochastic processes $\mathbf{z}_t$ can
+            be written as a linear combination of serially uncorrelated
+            processes $\mathbf{e}_t$.
+
+        \subsection{Result}
+            If the coefficient matrices of a linear time series
+            satisfy
+            \[\sum_{i=0}^\infty ||\mathbf{\psi}_i|| < \infty \]
+            then it is is stationary  with $E[\mathbf{z}_t] = \mathbf{\mu}$ and
+
+            \begin{equation}
+                \text{Cov}[\mathbf{z}_t] = \sum_{i=0}^\infty 
+                \mathbf{\psi}_i \Sigma_a \mathbf{\psi}_i'
+            \end{equation}
+
+        \subsection{Invertibility}
+            A linear time series is invertible if it can be 
+            written as
+            \begin{equation}
+                \mathbf{z}_t = \mathbf{c} + \mathbf{a}_t 
+                + \sum_{j=1}^\infty \mathbf{\pi}_j \mathbf{z}_{t-j}
+            \end{equation}
+
+    \section{Working through Lutkepohl 2005 New Introduction to Multiple
+    Time Series Analysis}
+
+        The Tsay book was a little too underspecified for an applied 
+        mathematician so I switched to Lutkepohl.
+
+        \subsection{Definition: Multivariate Stochastic Process}
+
+            Let $(\Omega, \mathcal{F}, \text{Pr})$ be a probability space where 
+            $\Omega$ is the event space, 
+            $\mathcal{F}$ is a sigma algebra over all subsets of $\Omega$,
+            and $\text{Pr}: \mathcal{F} \rightarrow \mathbb{R}$ is a probability 
+            measure on $\mathcal{F}$.
+
+            We define a \textit{random variable} to be a real valued
+            function $y: \Omega \rightarrow \mathbb{R}$ such that for each 
+            $c \in \mathbb{R}$, 
+            $A_c = \{\omega \in \Omega | \, y(\omega) \leq c\} \in \mathcal{F}$.
+            
+            Since $A_c$ belongs to $\mathcal{F}$ we can determine it's proportional
+            probability. The
+            function $F_y: \mathbb{R} \rightarrow [0,1]$ defined by 
+            $F_y(c) = \text{Pr}(A_C)$, is the \textit{distribution function} of $y$.
+
+            A \textit{$K$-dimensional random vector}, or a 
+            \textit{vector of $K$ random variables}
+            is a function $\mathbf{y}: \Omega \rightarrow \mathbb{R}^K$ such that
+            for each $\mathbf{c} \in \mathbb{R}^k$, 
+            $A_\mathbf{c} = \{\omega | \, y_1(\omega) \leq c_1, ... , y_k(\omega) 
+            \leq c_k\} \in \mathcal{F}$. 
+
+            A \textit{discrete stochastic process} is a real valued function, 
+            $y: Z \times \Omega \rightarrow \mathbb{R}$ where $Z$ is countable and
+            for each $t \in Z$, $y(t, \omega)$ is a random variable.
+
+            A \textit{multivariate stochastic process} is a function
+            \[
+                \mathbf{y}: Z \times \Omega \rightarrow \mathbb{R}^K
+            \]
+            such that for each fixed $t \in Z$, $\mathbf{y}(t, \omega)$ is a
+            $K$-dimensional random vector. For simplicity we will denote
+            this as $\mathbf{y}_t$.
+
+        \subsection{First Two Moments of a Univariate Stochastic Process}
+
+            \begin{align*}
+                E(y_t) = \mu_t \\
+                E[(y_t - \mu_t)^2] \\
+                E[(y_t - \mu_t)(y_s - \mu_s)]
+            \end{align*}
+
+        \subsection{Data Generating Process}
+
+            A realization of a vector stochastic process is a sequence
+            of $\mathbf{y}_t$ for a fixed $\omega_0$. It can therefore be 
+            thought of as a function $\mathbf{y}(t, \omega_0): 
+            Z \rightarrow \mathbb{R}^K$. The underlying stochastic process 
+            is said to have generated the multiple time series. It is
+            sometimes called the \textit{data generating process} (DGP).
+
+        
 
 
 \end{document}
