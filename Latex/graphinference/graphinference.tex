@@ -238,14 +238,48 @@
 
         \subsection{Data Generating Process}
 
-            A realization of a vector stochastic process is a sequence
-            of $\mathbf{y}_t$ for a fixed $\omega_0$. It can therefore be 
+            By specifying $\omega = \omega_0$ we can study a particular
+            realization of $\mathbf{y}_t(t, \omega)$. It can therefore be 
             thought of as a function $\mathbf{y}(t, \omega_0): 
             Z \rightarrow \mathbb{R}^K$. The underlying stochastic process 
             is said to have generated the multiple time series. It is
             sometimes called the \textit{data generating process} (DGP).
 
-        
+        \subsection{Vector Autoregressive Process}
+
+            A univariate autoregressive process is a stochastic process
+            \[
+                y_t = \nu + \alpha_1 y_{t-1} + \cdots + \alpha_p y{t - p} + u_t
+            \]
+            where $\nu$ and each $\alpha_i$ are constant real numbers and $y_t$
+            ... $y_{t-p}$ and $u_t$ are scalar random variables with $u_t$ denoting the
+            prediction error $u_t := y_t - \hat{y}_t$ and $u_t$ uncorrelated 
+            with $u_s$ for all $s \neq t$.
+
+            Similarly, a multivariate autoregressive process is a stochastic process
+            described by the following equation:
+            \[
+                \mathbf{y}_t = \mathbf{\nu} + A_1 \mathbf{y}_{t-1} + \cdots + A_p \mathbf{y}_{t-p} + \mathbf{u}_t
+            \]
+
+            Here, we assume that the $\mathbf{u}_t$ are identically distributed, zero mean
+            length $K$ random vectors.
+
+        \subsection{VAR($p$) Process}
+
+            The VAR model of order $p$ or VAR($p$) is the following object
+            \[
+                \mathbf{y}_t = \mathbf{\nu} + A_1 \mathbf{y}_{t-1} + \cdots + A_p \mathbf{y}_{t-p} + \mathbf{u}_t
+            \]
+
+            where $t \in \mathbb{Z}$, $\mathbf{y}$ is a length $K$ random vector,
+            $\mathbf{\nu}$ is a fixed length $K$ vector, the $A_i$ are $K \times K$
+            constant coefficient matrices and $\mathbf{u}_t$ is a white noise
+            or innovation process with $E(\mathbf{u}_t) = \mathbf{0}$, 
+            $E(\mathbf{u}_t \mathbf{u}_t^T) = \Sigma_\mathbf{u}$ with 
+            $\Sigma_\mathbf{u}$ assumed non-singular, and 
+            $E(\mathbf{u}_t \mathbf{u}_s^T) = \mathbf{0}$ when $s \neq t$.
+            
 
 
 \end{document}
