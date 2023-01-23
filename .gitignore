@@ -5,6 +5,7 @@ tmp/
 Notebooks/PrivateNotebooks/*
 .DS_Store
 *.code-workspace
+.vscode/
 
 ## R
 .Rprofile
