@@ -1,6 +1,7 @@
 \documentclass{article}
 \usepackage{amsmath}
 \usepackage{amssymb}
+\usepackage{bm}
 
 \title{Graph Inference on Timeseries Data}
 \author{D.J. Passey}
@@ -53,19 +54,19 @@
    
         Tsay defines a multivariate time series as
         \[
-            \mathbf{z}_t = (z_{1t}, \cdots, z_{kt})'
+            \bm{z}_t = (z_{1t}, \cdots, z_{kt})'
         \]
     
-        The problem of interest is defined as predicting $\mathbf{z}_{T+1}$ based on
-        the data $\{\mathbf{z}_1, \cdots, \mathbf{z}_T\}$. At this point an abstract
+        The problem of interest is defined as predicting $\bm{z}_{T+1}$ based on
+        the data $\{\bm{z}_1, \cdots, \bm{z}_T\}$. At this point an abstract
         model, $g(.)$ is employed to solve the problem via
         \[
-            \dot{\mathbf{z}}_{T+1} = g(\mathbf{z}_T, \mathbf{z}_{T-1}, \cdots, \mathbf{z}_1)
+            \dot{\bm{z}}_{T+1} = g(\bm{z}_T, \bm{z}_{T-1}, \cdots, \bm{z}_1)
         \]
     
         This formulation is great for pedagogical use, but I'll explore
         some of the details that it obscures. Often, the goal is not
-        simply to predict $\mathbf{z}_{T+1}$ but rather to gain
+        simply to predict $\bm{z}_{T+1}$ but rather to gain
         insight into the dynamics of the data-generating process. Vector
         auto-regression is a powerful tool, not because of it's
         predictive power, but because of the statistical guarantees
@@ -130,59 +131,59 @@
         Namely,
     
         \begin{equation}
-            \dot{\mathbf{z}}_{T+1} = \mathbf{\pi}_0 
-                + \mathbf{\pi}_1\mathbf{z}_T 
-                + \mathbf{\pi}_2\mathbf{z}_{T-1} 
+            \dot{\bm{z}}_{T+1} = \bm{\pi}_0 
+                + \bm{\pi}_1\bm{z}_T 
+                + \bm{\pi}_2\bm{z}_{T-1} 
                 + \cdots 
-                + \mathbf{\pi}_T\mathbf{z}_1
+                + \bm{\pi}_T\bm{z}_1
         \end{equation}
 
-        where each $\mathbf{\pi}_i$ is a $k \times k$ matrix.
+        where each $\bm{\pi}_i$ is a $k \times k$ matrix.
 
         Tsay assumes that the time series follows
         a contimuous multivariate distribution. 
 
         \subsection{Definition: Weakly Stationary}
-            A timeseries is said to be weakly stationary if $E[\mathbf{z}_t]
-            = \mathbf{mu} \forall t$ and if $\text{Cov}[\mathbf{z}_t] = \Sigma_\mathbf{z}$
+            A timeseries is said to be weakly stationary if $E[\bm{z}_t]
+            = \bm{mu} \forall t$ and if $\text{Cov}[\bm{z}_t] = \Sigma_{\bm{z}}$
         
         \subsection{Definition: Linear Time Series}
-            A k dimensional time series $\mathbf{z}_t$ is said to be linear
+            A k dimensional time series $\bm{z}_t$ is said to be linear
             if
             \begin{equation}
-                 \mathbf{z}_t = \mathbf{\mu} + \sum_{i=0}^\infty \mathbf{\psi}_i \mathbf{a}_{t-i}
+                 \bm{z}_t = \bm{\mu} + \sum_{i=0}^\infty \bm{\psi}_i \bm{a}_{t-i}
             \end{equation}
 
-            where $\mathbf{\mu}$ is a $k$-dimensional constant vector, 
-            $\mathbf{\psi}_0 = I$, the $k \times k$
-            identity matrix, $\mathbf{\psi}_i$ ($i > 0$) are $k \times k$
-            constant matrices and $\{\mathbf{a}_t\}$ is a sequence of 
+            where $\bm{\mu}$ is a $k$-dimensional constant vector, 
+            $\bm{\psi}_0 = I$, the $k \times k$
+            identity matrix, $\bm{\psi}_i$ ($i > 0$) are $k \times k$
+            constant matrices and $\{\bm{a}_t\}$ is a sequence of 
             idependent identically distributed random vectors with
-            mean zero and positive definite covariance matrix $\Sigma_\mathbf{a}$
+            mean zero and positive definite covariance matrix $\Sigma_{\bm{a}}$
 
 
         \subsection{Wold Decomposition}
-            A stationary, purely stochastic processes $\mathbf{z}_t$ can
+            A stationary, purely stochastic processes $\bm{z}_t$ can
             be written as a linear combination of serially uncorrelated
-            processes $\mathbf{e}_t$.
+            processes $\bm{e}_t$.
 
         \subsection{Result}
             If the coefficient matrices of a linear time series
             satisfy
-            \[\sum_{i=0}^\infty ||\mathbf{\psi}_i|| < \infty \]
-            then it is is stationary  with $E[\mathbf{z}_t] = \mathbf{\mu}$ and
+            \[\sum_{i=0}^\infty ||\bm{\psi}_i|| < \infty \]
+            then it is is stationary  with $E[\bm{z}_t] = \bm{\mu}$ and
 
             \begin{equation}
-                \text{Cov}[\mathbf{z}_t] = \sum_{i=0}^\infty 
-                \mathbf{\psi}_i \Sigma_a \mathbf{\psi}_i'
+                \text{Cov}[\bm{z}_t] = \sum_{i=0}^\infty 
+                \bm{\psi}_i \Sigma_a \bm{\psi}_i'
             \end{equation}
 
         \subsection{Invertibility}
             A linear time series is invertible if it can be 
             written as
             \begin{equation}
-                \mathbf{z}_t = \mathbf{c} + \mathbf{a}_t 
-                + \sum_{j=1}^\infty \mathbf{\pi}_j \mathbf{z}_{t-j}
+                \bm{z}_t = \bm{c} + \bm{a}_t 
+                + \sum_{j=1}^\infty \bm{\pi}_j \bm{z}_{t-j}
             \end{equation}
 
     \section{Working through Lutkepohl 2005 New Introduction to Multiple
@@ -211,9 +212,9 @@
 
             A \textit{$K$-dimensional random vector}, or a 
             \textit{vector of $K$ random variables}
-            is a function $\mathbf{y}: \Omega \rightarrow \mathbb{R}^K$ such that
-            for each $\mathbf{c} \in \mathbb{R}^k$, 
-            $A_\mathbf{c} = \{\omega | \, y_1(\omega) \leq c_1, ... , y_k(\omega) 
+            is a function $\bm{y}: \Omega \rightarrow \mathbb{R}^K$ such that
+            for each $\bm{c} \in \mathbb{R}^k$, 
+            $A_{\bm{c}} = \{\omega | \, y_1(\omega) \leq c_1, ... , y_k(\omega) 
             \leq c_k\} \in \mathcal{F}$. 
 
             A \textit{discrete stochastic process} is a real valued function, 
@@ -222,11 +223,11 @@
 
             A \textit{multivariate stochastic process} is a function
             \[
-                \mathbf{y}: Z \times \Omega \rightarrow \mathbb{R}^K
+                \bm{y}: Z \times \Omega \rightarrow \mathbb{R}^K
             \]
-            such that for each fixed $t \in Z$, $\mathbf{y}(t, \omega)$ is a
+            such that for each fixed $t \in Z$, $\bm{y}(t, \omega)$ is a
             $K$-dimensional random vector. For simplicity we will denote
-            this as $\mathbf{y}_t$.
+            this as $\bm{y}_t$.
 
         \subsection{First Two Moments of a Univariate Stochastic Process}
 
@@ -239,8 +240,8 @@
         \subsection{Data Generating Process}
 
             By specifying $\omega = \omega_0$ we can study a particular
-            realization of $\mathbf{y}_t(t, \omega)$. It can therefore be 
-            thought of as a function $\mathbf{y}(t, \omega_0): 
+            realization of $\bm{y}_t(t, \omega)$. It can therefore be 
+            thought of as a function $\bm{y}(t, \omega_0): 
             Z \rightarrow \mathbb{R}^K$. The underlying stochastic process 
             is said to have generated the multiple time series. It is
             sometimes called the \textit{data generating process} (DGP).
@@ -249,7 +250,7 @@
 
             A univariate autoregressive process is a stochastic process
             \[
-                y_t = \nu + \alpha_1 y_{t-1} + \cdots + \alpha_p y{t - p} + u_t
+                y_t = \nu + \alpha_1 y_{t-1} + \cdots + \alpha_p y_{t - p} + u_t
             \]
             where $\nu$ and each $\alpha_i$ are constant real numbers and $y_t$
             ... $y_{t-p}$ and $u_t$ are scalar random variables with $u_t$ denoting the
@@ -259,27 +260,111 @@
             Similarly, a multivariate autoregressive process is a stochastic process
             described by the following equation:
             \[
-                \mathbf{y}_t = \mathbf{\nu} + A_1 \mathbf{y}_{t-1} + \cdots + A_p \mathbf{y}_{t-p} + \mathbf{u}_t
+                \bm{y}_t = \bm{\nu} + A_1 \bm{y}_{t-1} + \cdots + A_p \bm{y}_{t-p} + \bm{u}_t
             \]
 
-            Here, we assume that the $\mathbf{u}_t$ are identically distributed, zero mean
+            Here, we assume that the $\bm{u}_t$ are identically distributed, zero mean,
             length $K$ random vectors.
 
-        \subsection{VAR($p$) Process}
+        \subsection{VAR($p$) Process} \label{sec:VARp}
 
             The VAR model of order $p$ or VAR($p$) is the following object
             \[
-                \mathbf{y}_t = \mathbf{\nu} + A_1 \mathbf{y}_{t-1} + \cdots + A_p \mathbf{y}_{t-p} + \mathbf{u}_t
+                \bm{y}_t = \bm{\nu} + A_1 \bm{y}_{t-1} + \cdots + A_p \bm{y}_{t-p} + \bm{u}_t
             \]
 
-            where $t \in \mathbb{Z}$, $\mathbf{y}$ is a length $K$ random vector,
-            $\mathbf{\nu}$ is a fixed length $K$ vector, the $A_i$ are $K \times K$
-            constant coefficient matrices and $\mathbf{u}_t$ is a white noise
-            or innovation process with $E(\mathbf{u}_t) = \mathbf{0}$, 
-            $E(\mathbf{u}_t \mathbf{u}_t^T) = \Sigma_\mathbf{u}$ with 
-            $\Sigma_\mathbf{u}$ assumed non-singular, and 
-            $E(\mathbf{u}_t \mathbf{u}_s^T) = \mathbf{0}$ when $s \neq t$.
-            
+            where $t \in \mathbb{Z}$, $\bm{y}$ is a length $K$ random vector,
+            $\bm{\nu}$ is a fixed length $K$ vector, the $A_i$ are $K \times K$
+            constant coefficient matrices and $\bm{u}_t$ is a white noise
+            or innovation process with $E(\bm{u}_t) = \bm{0}$, 
+            $E(\bm{u}_t \bm{u}_t^T) = \Sigma_{\bm{u}}$ with 
+            $\Sigma_{\bm{u}}$ assumed non-singular, and 
+            $E(\bm{u}_t \bm{u}_s^T) = \bm{0}$ when $s \neq t$.
 
+            Any $\text{VAR}(p)$ process can be rewritten as a $\text{VAR}(1)$
+            process with the transformation,
+            \[
+                Y_t = \begin{bmatrix}y_t \\ y_{t-1} \\ \vdots  \\ y_{t - p} \end{bmatrix},
+                \quad
+                \bm{\nu} = \begin{bmatrix} \nu \\ 0 \\ \vdots \\ 0 \end{bmatrix}, 
+                \quad
+                U_t = \begin{bmatrix} \bm{u}_t \\ 0 \\ \vdots \\ 0 \end{bmatrix}
+            \]
+            and
+            \[
+                \bm{A} = \begin{bmatrix}
+                   A_1 & A_2 & \cdots & A_{p-1} & A_p \\
+                   I & & & & \\
+                   & I & & & \\
+                   & & \ddots & & \\
+                   & & & I & \\
+                \end{bmatrix}
+            \]
+            
+            Thus the following proofs are general:
+
+            \subsection{Result}
+
+            If the eigenvalues of $\bm{A}$ are less than one, a 
+            VAR($p$) can be written in the following form:
+            \[
+                Y_t = \bm{\mu} + \sum_{i=0}^\infty \bm{A}^i\bm{u}_{t-i}
+            \]
+
+            \subsection{Proof}
+
+            As show in \ref{sec:VARp}, Any VAR($p$) process can be written
+            as a VAR(1) process of the form
+
+            \[ 
+                Y_t = \bm{\nu} + \bm{A} Y_{t - 1} + U_t
+            \]
+
+            Applying this recursively gives
+            \begin{align}
+                Y_t = \bm{\nu} + \bm{A}(\bm{\nu} + \bm{A} Y_{t-2} + U_{t-1}) + U_t \\
+                Y_t = \bm{\nu} + \bm{A}\bm{\nu} + \bm{A}^2 Y_{t-2} + \bm{A} U_{t-1} + U_t \\
+                Y_t = \bm{\nu} + \bm{A}\bm{\nu} + \bm{A}^2 (\bm{\nu} + \bm{A}Y_{t-3} + U_{t-2}) + \bm{A} U_{t-1} + U_t \\
+                Y_t = (I + \bm{A} + \bm{A}^2 + \cdots + \bm{A}^m) \bm{\nu} + \bm{A}^{m+1} Y_{t - (m+1)} + \sum_{i = 0} \bm{A}^i \, U_{t - i}.
+            \end{align}
+
+            Since the eigenvalues of $\bm{A}$ are all less than one, the series 
+            \[ 
+                \sum_{i=0}^\infty \bm{A}^i = (I - \bm{A})^{-1} 
+            \]
+
+            Similarly, $\bm{A}^m \rightarrow 0$ as $m \rightarrow \infty$.
+
+            Therefore, if we take the limit of the sequence above as $m$
+            goes to infinity we obtain
+
+            \[
+                Y_t = \bm{\mu} + \sum_{i=1}^{\infty}\bm{A}^i U_{t-i}
+            \]
+
+            Where $\bm{\mu} = (I - \bm{A})^{-1} \bm{\nu}$.
+
+        \subsubsection{Discussion}
+
+        This means that a realization of a vector autoregressive
+        process can be described as repeated draws from the same
+        multivariate normal distribution (if we assume the white noise
+        is gaussian, which I think we must for the statistical ananlysis
+        to work.)
+
+        We take these repeated draws and multiply them by appropriate
+        powers of $\bm{A}$. This causes the prevalance of a particular
+        random vector increase or decrease given the magnitude of the 
+        entries of $\bm{A}^i$.
+
+        We could approximate this by truncating the infinite series
+        at $M$ terms where $||\bm{A}^M||$ is sufficiently small.
+        Then we generate a sequence of random $M$ vectors and apply 
+        powers of $\bm{A}$ appropriately. To get the next $Y_t$, we shift
+        the sequence by one and generate a new random vector to fill in 
+        the open spot.
+        
+
+            
 
 \end{document}
