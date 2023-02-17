@@ -2,18 +2,35 @@
 
 Infering computational networks from time series data.
 
-## Installation
+This repo seeks to understand algorithms that augment our ability to identify true dynamic relationships in complex systems. Because complex systems can be discontinuous, non-linear, hybrid
+systems and because they often involve a high degree of feedback and accumulation,
+the assumptions of dynamic models that are fundamentally linear in nature,
+like autoregressive models, fall short.
 
-There are two options for installation. The first install only
+But to what extent do these algorithms fail? Are they still able to provide
+useful information when the systems of interest do not satisfy the assumptions? When do they fail, and why? What are the alternatives?
+
+This repo seeks to investigate the following:
+
+1. Failure modes of autoregression and multilevel autoregression.
+2. Alternate theoretical formulations of the concept of the *computational network* of a complex system.
+3. Algorithmic approaches that assist the development of explanitory models of complex systems.
+
+## Quick Start
+
+There are two options for installation. The quick install only loads
 the code library contained within the `graphinference` package, and
-the second option installs pinned versions of the dependencies so that the results in the Jupyter notebooks can be reproduced.
+the second option, explained further down installs pinned dependencies so the
+jupyter and Rmd notebooks can be reproduced exactly.
 
-### Option 1: Install `graphinference` Library Only
+### Install `graphinference`
 
 To install this repo as a Python package simply run
 ```
 pip3 install git+https://github.com/djpasseyjr/graphinference.git
 ```
+
+### Short Example
 
 Then you can, for example, simulate a Ornstein–Uhlenbeck process 
 with the following lines of Python:
@@ -36,7 +53,9 @@ plt.plot(stochastic_timeseries.T, alpha=.5)
 ![](https://github.com/djpasseyjr/graphinference/raw/main/Images/OrnsteinUhlenbeckProcessExample.png)
 
 
-### Option 2: Reproduce the Results in a Virtual Environment
+## Reproduce the Results in a Virtual Environment
+
+This repo install, loads pinned versions of the dependencies so that the results in the Jupyter notebooks can be reproduced.
 
 **1. Install Java and Set `$JAVA_HOME`**
 
@@ -79,23 +98,25 @@ python3 -m venv graphinf_venv
 source graphinf_venv/bin/activate
 ```
 
-This will initialize a virtual environment. All the Python necessary packages will be installed *within* this repo. The `deactivate` bash/zsh command turns this off and uses your system python packages.
+This will initialize a virtual environment. All the necessary Python packages will be installed to a folder *within* this repo. The `deactivate` bash/zsh command turns off the environment and switches back to your system python packages.
 
-**4. Install Dependencies and Package Via `pip`**
+**4. Install `graphinference` Dependencies and Package Via `pip`**
 
 After `JAVA_HOME` is set properly, from the top level directory of this repo run:
 
 ```
-# Install all dependencies via pip
 pip3 install -r requirements.txt
+```
+to install all dependencies via pip and
 
-# Install graphinference
+```
 pip3 install .
 ```
+to install `graphinference`.
 
 ## Uninstall and Delete
 
-If you installed without intending to reproduce the work run
+If you quick installed the package, simply run
 ```
 pip3 uninstall graphinference
 ```
@@ -105,6 +126,18 @@ If you initialized the virtual environment inside of this repository, then delet
 ```
 pip3 uninstall graphinference
 deactivate
-# Delete repo
-rm -rd path/to/graphinferece
+# Delete repo from your file system
+rm -rdf path/to/graphinferece
 ```
+
+## List of Useful Repos and Packages
+
+* [`netrd`](https://github.com/netsiphd/netrd) A Library for network reconstruction, distances and dynamics
+
+* [`pyboolnet`](https://github.com/hklarner/pyboolnet) Boolian network simulation library
+
+* [`lmeresampler`](http://cran.r-project.org/package=lmeresampler) Bootstrapping mixed effect models in R
+
+* [`jidt`](https://github.com/jlizier/jidt) Information theoretic measures of computation in Java
+
+* [`idtxl`](https://github.com/pwollstadt/IDTxl) Inference of networks and their node dynamics from multivariate time series data using information theory in python.
