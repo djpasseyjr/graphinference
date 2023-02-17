@@ -1,0 +1,91 @@
+---
+title: "Exploring and Simulating With a Multilevel Model"
+output: pdf_document
+author: "DJ Passey"
+date: "Jan 4, 2023"
+header-includes:
+     - \renewcommand{\familydefault}{\sfdefault}
+---
+
+```{r, setup}
+library(renv)
+library(here)
+# Activate R virtual environment
+# The `here()` function should locate the top level
+# directory of the enclosing git repository called `graphinference`
+proj_dir = here()
+print(cat("Double check that project directory\n",
+          "is named graphinference:\n", 
+          "proj_dir =", proj_dir, "\n"))
+
+renv::activate(proj_dir)
+
+library(lme4)
+```
+
+# Dataset: `InstEval`
+
+InstEval is a dataset of how students rate lectures. The dataset was created
+with the goal of identifying the most liked instructor. The columns are:
+
+* `s` a factor with levels 1:2972 denoting individual students.
+
+* `d` a factor with 1128 levels from 1:2160, denoting individual professors or lecturers.
+
+* `studage` an ordered factor with levels 2 < 4 < 6 < 8, denoting student's “age” measured in the semester number the student has been enrolled.
+
+* `lectage` an ordered factor with 6 levels, 1 < 2 < ... < 6, measuring how many semesters back the lecture rated had taken place.
+
+* `service` a binary factor with levels 0 and 1; a lecture is a “service”, if held for a different department than the lecturer's main one.
+
+* `dept` a factor with 14 levels from 1:15, using a random code for the department of the lecture.
+
+* `y` a numeric vector of ratings of lectures by the students, using the discrete scale 1:5, with meanings of ‘poor’ to ‘very good’.
+
+Each observation is one student's rating for a specific lecture (of one lecturer, during one semester in the past).
+
+
+If our goal is to find the best liked lecturer, we are interested in the relative sizes of the effect of `d`
+on `y`. The best liked lecturer should have the biggest positive effect on `y`.
+
+However, we would like to include in the regression the fact that some
+students may give mainly positive ratings while others may give more negative ones. 
+Similarly, students who are older may give different types of ratings. We can control
+for this by including a random intercept for each student and a random intercept
+for student age.
+
+Similarly, some departments may get higher ratings because their subjects are
+well liked. We can control for this so that the effect of the professor is
+department agnostic by including a random intercept for department.
+
+There is a column for service denoting if a professor lectured in their main
+department or a different one. It is possible that this column has interactions with department
+and professor, that is, for some departments, service may improve your rating, and for others,
+service may decrease your rating. Similarly, there may be professors who do better outside
+their department, and other professors who don't.
+
+My inclanation is to control for this with a random intercept on `service:d`
+
+Check that instructor (`d` column) is nested in `dept`. In other words,
+each instructor belongs to a single department.
+```{r}
+all(rowSums(xtabs(~ d + dept, InstEval) != 0L ) == 1)
+```
+
+
+Check that each student is associated with exactly one studage. (Otherwise we
+would have ratings from students across multiple years.)
+```{r}
+all(rowSums(xtabs(~ s + studage, InstEval) != 0L ) == 1)
+```
+
+## Regressions
+
+```{r}
+instr_eval1 <- lm(y ~ d, data=InstEval)
+summary(instr_eval1)
+```
+
+```{r}
+instr_eval2 <- lme4(y ~ d + (1 | s))
+```
