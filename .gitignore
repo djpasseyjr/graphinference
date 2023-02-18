@@ -3,6 +3,8 @@ graphinf_venv/
 renv/
 tmp/
 Notebooks/PrivateNotebooks/*
+Data/*/*.py
+
 .DS_Store
 *.code-workspace
 .vscode/

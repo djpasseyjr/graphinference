@@ -1,0 +1,615 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xmile version="1.0" xmlns="http://docs.oasis-open.org/xmile/ns/XMILE/v1.0" xmlns:isee="http://iseesystems.com/XMILE">
+	<header>
+		<smile version="1.0" namespace="std, isee"/>
+		<name>Financial instability STELLA online</name>
+		<uuid>af92e436-10a1-483c-8177-7ede96a06577</uuid>
+		<vendor>isee systems, inc.</vendor>
+		<product version="1.8.2" isee:build_number="1708" isee:saved_by_v1="true" lang="en">Stella Architect</product>
+	</header>
+	<sim_specs isee:simulation_delay="0.00187266" isee:restore_on_start="false" method="RK4" time_units="month" isee:instantaneous_flows="false">
+		<start>0</start>
+		<stop>800</stop>
+		<dt reciprocal="true">10</dt>
+	</sim_specs>
+	<isee:prefs show_module_prefix="true" live_update_on_drag="true" show_restore_buttons="false" layer="model" interface_scale_ui="true" interface_max_page_width="10000" interface_max_page_height="10000" interface_min_page_width="0" interface_min_page_height="0" saved_runs="5" keep="false" rifp="true"/>
+	<isee:multiplayer_settings include_chat="true" allow_observers="false" advance_time_increment="1" observer_start_page="home_page" enabled="false"/>
+	<isee:time_formats default_format="Builtin">
+		<isee:time_format name="Builtin" type="adaptive"/>
+	</isee:time_formats>
+	<default_format/>
+	<isee:sensi_specs_list active_index="0">
+		<isee:sensi_specs name="Sensitivity" method="multivariate" runs="4">
+			<isee:variable starting_value="3" ending_value="3.2" type="incremental" seed="12345" name="wage" num_samples="4"/>
+		</isee:sensi_specs>
+	</isee:sensi_specs_list>
+	<isee:optimizer_specs_list active_index="0">
+		<isee:optimizer_specs name="Optimization" method="Powell" additional_starts="0" report_interval="0" confidence_range="0">
+			<isee:parameter name="employment_rate_threshold" min="0" max="1"/>
+		</isee:optimizer_specs>
+	</isee:optimizer_specs_list>
+	<isee:payoff_specs_list>
+		<isee:payoff_specs name="Payoff"/>
+	</isee:payoff_specs_list>
+	<model_units>
+		<unit name="Dimensionless">
+			<eqn>1</eqn>
+			<alias>dmnl</alias>
+			<alias>unitless</alias>
+			<alias>fraction</alias>
+		</unit>
+		<unit name="Workers">
+			<eqn/>
+			<alias>worker</alias>
+		</unit>
+		<unit name="Months">
+			<eqn/>
+			<alias>mo</alias>
+			<alias>month</alias>
+		</unit>
+	</model_units>
+	<model>
+		<variables>
+			<stock name="capital">
+				<eqn>400</eqn>
+				<inflow>investment</inflow>
+				<outflow>depreciation</outflow>
+				<non_negative/>
+				<units>productive_good</units>
+			</stock>
+			<flow name="investment">
+				<eqn>(profits+new_loans)/price_of_capital</eqn>
+				<non_negative/>
+				<units>productive_good/month</units>
+			</flow>
+			<flow name="production">
+				<eqn>capital*output_per_unit_capital</eqn>
+				<non_negative/>
+				<units>commodity/month</units>
+			</flow>
+			<stock name="population">
+				<eqn>200</eqn>
+				<inflow>reproduction</inflow>
+				<non_negative/>
+				<units>worker</units>
+			</stock>
+			<stock name="labour\nproductivity">
+				<eqn>1</eqn>
+				<inflow>productivity_change</inflow>
+				<non_negative/>
+				<units>commodity/worker/month</units>
+			</stock>
+			<stock name="wage">
+				<eqn>3</eqn>
+				<inflow>wage_adjustment</inflow>
+				<non_negative/>
+				<units>dollar/worker/month</units>
+			</stock>
+			<aux name="wage\nbill">
+				<eqn>wage*employed_population</eqn>
+				<units>dollar/month</units>
+			</aux>
+			<aux name="profits">
+				<eqn>production*price_of_commodities-wage_bill-interest_payments</eqn>
+				<units>dollar/month</units>
+			</aux>
+			<aux name="economic\ngrowth rate">
+				<eqn>SAFEDIV((production-HISTORY (production, TIME-1)), HISTORY (production, TIME-1))</eqn>
+				<units>dimensionless</units>
+			</aux>
+			<aux name="zero">
+				<eqn>0</eqn>
+				<units>dimensionless</units>
+			</aux>
+			<aux name="employed\npopulation">
+				<eqn>SAFEDIV(production, labour_productivity)</eqn>
+				<units>worker</units>
+			</aux>
+			<aux name="wage share">
+				<eqn>wage_bill/(production*price_of_commodities)</eqn>
+				<units>dimensionless</units>
+			</aux>
+			<flow name="productivity\nchange">
+				<eqn>labour_productivity*productivity_change_rate</eqn>
+				<non_negative/>
+				<units>commodity/worker/month/month</units>
+			</flow>
+			<flow name="reproduction">
+				<eqn>population*reproduction_rate</eqn>
+				<non_negative/>
+				<units>worker/month</units>
+			</flow>
+			<aux name="interest\npayments">
+				<eqn>debt*interest_rate</eqn>
+				<units>dollar/month</units>
+			</aux>
+			<stock name="debt">
+				<eqn>200</eqn>
+				<inflow>new_loans</inflow>
+				<non_negative/>
+				<units>dollar</units>
+			</stock>
+			<flow name="new\nloans">
+				<eqn>profits*2.5</eqn>
+				<non_negative/>
+				<units>dollar/month</units>
+			</flow>
+			<flow name="depreciation">
+				<eqn>capital*depreciation_rate</eqn>
+				<non_negative/>
+				<units>productive_good/month</units>
+			</flow>
+			<flow name="wage\nadjustment">
+				<eqn>SAFEDIV(((1+employment_rate_gap)*wage)-wage,  wage_adjustment_delay)</eqn>
+				<units>dollar/worker/month/month</units>
+			</flow>
+			<aux name="wage\nadjustment\ndelay">
+				<eqn>10</eqn>
+				<range min="1" max="50"/>
+				<units>month</units>
+			</aux>
+			<aux name="employment\nrate gap">
+				<eqn>employment_rate-employment_rate_threshold</eqn>
+				<units>dimensionless</units>
+			</aux>
+			<aux name="employment\nrate">
+				<eqn>SAFEDIV(employed_population, population)</eqn>
+				<units>dimensionless</units>
+			</aux>
+			<stock name="price of\ncommodities">
+				<eqn>3</eqn>
+				<inflow>price_adjustment</inflow>
+				<non_negative/>
+				<units>dollar/commodity</units>
+			</stock>
+			<aux name="cost per unit\nof output">
+				<eqn>wage/labour_productivity</eqn>
+				<units>dollar/commodity</units>
+			</aux>
+			<flow name="price\nadjustment">
+				<eqn>SAFEDIV((cost_per_unit_of_output-price_of_commodities), price_adjustment_delay)</eqn>
+				<units>dollar/commodity/month</units>
+			</flow>
+			<aux name="price\nadjustment\ndelay">
+				<eqn>12</eqn>
+				<range min="1" max="20"/>
+				<units>month</units>
+			</aux>
+			<aux name="employment\nrate threshold">
+				<eqn>0.8</eqn>
+				<units>dimensionless</units>
+			</aux>
+			<aux name="price of\ncapital">
+				<eqn>0.5</eqn>
+				<range min="0" max="1"/>
+				<units>dollar/productive_good</units>
+			</aux>
+			<aux name="output per\nunit capital">
+				<eqn>0.4</eqn>
+				<range min="0" max="1"/>
+				<units>commodity/productive_good/month</units>
+			</aux>
+			<aux name="interest\nrate">
+				<eqn>0.007</eqn>
+				<range min="0" max="0.01"/>
+				<units>dimensionless/month</units>
+			</aux>
+			<aux name="depreciation\nrate">
+				<eqn>0.018</eqn>
+				<range min="0" max="0.05"/>
+				<units>dimensionless/months</units>
+			</aux>
+			<aux name="productivity\nchange rate">
+				<eqn>0.0008</eqn>
+				<range min="0" max="0.001"/>
+				<units>dimensionless/months</units>
+			</aux>
+			<aux name="reproduction\nrate">
+				<eqn>0.0008</eqn>
+				<range min="0" max="0.001"/>
+				<units>dimensionless/months</units>
+			</aux>
+		</variables>
+		<views>
+			<style color="black" background="white" font_style="normal" font_weight="normal" text_decoration="none" text_align="center" vertical_text_align="center" font_color="black" font_family="Arial" font_size="10pt" padding="2" border_color="black" border_width="thin" border_style="none">
+				<text_box color="black" background="white" text_align="left" vertical_text_align="top" font_size="12pt"/>
+				<isee:loop_indicator color="black" background="white" text_align="left" vertical_text_align="top" font_size="12pt"/>
+				<numeric_display color="blue" background="white" font_size="9pt" isee:transparent="false"/>
+				<graph color="black" background="white" font_size="12pt" axis_color="#666666" grid_color="#C8C8C8" isee:graph_area_color="white" legend_position="bottom" isee:transparent="false" isee:hide_border="false" axis_title_font_style="normal" axis_title_font_weight="normal" axis_title_text_decoration="none" axis_title_text_align="center" axis_title_vertical_text_align="center" axis_title_font_color="black" axis_title_font_family="Arial" axis_title_font_size="12pt" axis_title_text_padding="2" axis_title_text_border_color="black" axis_title_text_border_width="thin" axis_title_text_border_style="none" axis_label_font_style="normal" axis_label_font_weight="normal" axis_label_text_decoration="none" axis_label_text_align="center" axis_label_vertical_text_align="center" axis_label_font_color="black" axis_label_font_family="Arial" axis_label_font_size="9pt" axis_label_text_padding="2" axis_label_text_border_color="black" axis_label_text_border_width="thin" axis_label_text_border_style="none">
+					<isee:series_styles>
+						<isee:series_style color="blue" thickness="1"/>
+						<isee:series_style color="red" thickness="1" pen_style="dot_dashed"/>
+						<isee:series_style color="fuchsia" thickness="1" pen_style="dotted"/>
+						<isee:series_style color="#008F44" thickness="1" pen_style="dashed"/>
+						<isee:series_style color="#FF7F00" thickness="1"/>
+						<isee:series_style color="#7F00FF" thickness="1" pen_style="dot_dashed"/>
+						<isee:series_style color="#0CA0FF" thickness="1" pen_style="dotted"/>
+						<isee:series_style color="lime" thickness="1" pen_style="dashed"/>
+						<isee:series_style color="#FF007F" thickness="1"/>
+						<isee:series_style color="aqua" thickness="1" pen_style="dot_dashed"/>
+						<isee:series_style color="#F586FF" thickness="1" pen_style="dotted"/>
+						<isee:series_style color="black" thickness="1" pen_style="dashed"/>
+						<isee:series_style color="#C8C8C8" thickness="1"/>
+					</isee:series_styles>
+				</graph>
+				<table color="black" background="#E0E0E0" text_align="right" font_size="12pt" orientation="vertical" wrap_text="false" isee:auto_fit="true" isee:use_alternate_row_colors="false" isee:unlimited_table_length="false" blank_column_width="80" column_width="160" interval="1" report_balances="beginning" report_flows="instantaneous" header_font_style="normal" header_font_weight="normal" header_text_decoration="none" header_text_align="center" header_vertical_text_align="center" header_font_color="black" header_font_family="Arial" header_font_size="12pt" header_text_padding="2" header_text_border_color="black" header_text_border_width="thin" header_text_border_style="none"/>
+				<button color="black" background="#E0E0E0" font_size="12pt" transparent="false" corner_radius="0" isee:flat="false" icon_side="top" isee:highlight_on_hover="false" isee:highlight_color="#959595"/>
+				<isee:annotation color="black" background="#E0E0E0" font_size="12pt" transparent="false" corner_radius="0" isee:flat="false" icon_side="top" isee:highlight_on_hover="false" isee:highlight_color="#959595" popup_background_color="#FFFECF"/>
+				<slider color="black" background="#E0E0E0" font_size="12pt" num_ticks="3" label_side="top" wrap_title="true" vertical="false" isee:show_hover_tip="when_deciding" input_expands="true" input_width="100"/>
+				<isee:sim_speed_slider color="black" background="white"/>
+				<isee:time_slider color="#E95F74" background="silver"/>
+				<isee:pie_input color="black" background="white" font_size="12pt" legend_position="bottom" isee:transparent="false"/>
+				<knob color="#66CC66" background="#E0E0E0" font_size="12pt" label_side="bottom" wrap_title="true"/>
+				<numeric_input color="black" background="#E0E0E0" font_size="12pt" label_side="left" wrap_title="true" input_expands="false" input_width="100"/>
+				<switch color="black" background="#E0E0E0" font_size="12pt" label_side="top" wrap_title="true" isee:appearance="switch" isee:on_color="green"/>
+				<options color="black" background="white" appearance="radio-buttons" arrangement="vertical"/>
+				<graphical_input color="black" background="#E0E0E0" font_size="12pt" isee:show_hover_tip="true"/>
+				<group_input color="black" background="#E0E0E0" font_size="12pt"/>
+				<lamp color="black" background="white" font_size="9pt"/>
+				<gauge color="black" background="white" font_size="9pt" needle_color="#F09F72" bar_color="#EEEEEE" bar_progress_color="black" appearance="radial" num_major_ticks="11" num_minor_ticks="11" show_numeric_value="true"/>
+				<isee:spatial_map color="black" background="white" font_size="12pt"/>
+				<isee:animation_object color="black" background="white" font_size="12pt"/>
+				<isee:navigation_widget color="black" background="white" item_spacing="6" appearance="tabs" corner_radius="4" selected_item_color="black" selected_item_background="white" item_background="#DDDDDD"/>
+				<isee:shape color="black" background="white" opacity="1" transparent_background="true"/>
+				<isee:selector color="black" background="white"/>
+			</style>
+			<view isee:show_pages="false" isee:use_lettered_polarity="true" page_width="764" page_height="584" isee:page_cols="3" isee:page_rows="3" zoom="80" isee:popup_graphs_are_comparative="true" type="stock_flow">
+				<style color="black" background="white" font_style="normal" font_weight="normal" text_decoration="none" text_align="center" vertical_text_align="center" font_color="black" font_family="Arial" font_size="10pt" padding="2" border_color="black" border_width="thin" border_style="none">
+					<stock color="black" background="white" font_family="Helvetica" font_size="11pt" label_side="top">
+						<shape type="rectangle" width="45" height="35"/>
+					</stock>
+					<flow color="black" background="white" font_family="Helvetica" font_size="11pt" label_side="bottom"/>
+					<isee:placeholder color="#228B22" background="white" font_color="#228B22" font_size="11pt" label_side="bottom"/>
+					<module color="black" background="white" font_family="Helvetica" font_size="11pt" label_side="top">
+						<shape type="rectangle" width="55" height="45"/>
+					</module>
+					<aux color="black" background="white" font_family="Helvetica" font_size="11pt" label_side="bottom">
+						<shape type="circle" radius="18"/>
+					</aux>
+					<group color="red" background="white" font_color="red" font_size="11pt"/>
+					<connector color="black" background="white" font_size="9pt" isee:thickness="1"/>
+					<text_box color="black" background="white" text_align="left" vertical_text_align="top" font_size="12pt"/>
+					<isee:loop_indicator color="black" background="white" text_align="left" vertical_text_align="top" font_size="12pt"/>
+					<numeric_display color="blue" background="white" font_size="9pt" isee:transparent="false"/>
+					<graph color="black" background="white" font_size="12pt" axis_color="#666666" grid_color="#C8C8C8" isee:graph_area_color="white" legend_position="bottom" isee:transparent="false" isee:hide_border="false" axis_title_font_style="normal" axis_title_font_weight="normal" axis_title_text_decoration="none" axis_title_text_align="center" axis_title_vertical_text_align="center" axis_title_font_color="black" axis_title_font_family="Arial" axis_title_font_size="12pt" axis_title_text_padding="2" axis_title_text_border_color="black" axis_title_text_border_width="thin" axis_title_text_border_style="none" axis_label_font_style="normal" axis_label_font_weight="normal" axis_label_text_decoration="none" axis_label_text_align="center" axis_label_vertical_text_align="center" axis_label_font_color="black" axis_label_font_family="Arial" axis_label_font_size="9pt" axis_label_text_padding="2" axis_label_text_border_color="black" axis_label_text_border_width="thin" axis_label_text_border_style="none">
+						<isee:series_styles>
+							<isee:series_style color="blue" thickness="1"/>
+							<isee:series_style color="red" thickness="1" pen_style="dot_dashed"/>
+							<isee:series_style color="fuchsia" thickness="1" pen_style="dotted"/>
+							<isee:series_style color="#008F44" thickness="1" pen_style="dashed"/>
+							<isee:series_style color="#FF7F00" thickness="1"/>
+							<isee:series_style color="#7F00FF" thickness="1" pen_style="dot_dashed"/>
+							<isee:series_style color="#0CA0FF" thickness="1" pen_style="dotted"/>
+							<isee:series_style color="lime" thickness="1" pen_style="dashed"/>
+							<isee:series_style color="#FF007F" thickness="1"/>
+							<isee:series_style color="aqua" thickness="1" pen_style="dot_dashed"/>
+							<isee:series_style color="#F586FF" thickness="1" pen_style="dotted"/>
+							<isee:series_style color="black" thickness="1" pen_style="dashed"/>
+							<isee:series_style color="#C8C8C8" thickness="1"/>
+						</isee:series_styles>
+					</graph>
+					<table color="black" background="#E0E0E0" text_align="right" font_size="12pt" orientation="vertical" wrap_text="false" isee:auto_fit="true" isee:use_alternate_row_colors="false" isee:unlimited_table_length="false" blank_column_width="80" column_width="160" interval="1" report_balances="beginning" report_flows="instantaneous" header_font_style="normal" header_font_weight="normal" header_text_decoration="none" header_text_align="center" header_vertical_text_align="center" header_font_color="black" header_font_family="Arial" header_font_size="12pt" header_text_padding="2" header_text_border_color="black" header_text_border_width="thin" header_text_border_style="none"/>
+				</style>
+				<connector uid="1" angle="158.174">
+					<from>capital</from>
+					<to>depreciation</to>
+				</connector>
+				<stock label_side="center" x="385.632" y="547.085" name="capital"/>
+				<flow label_side="bottom" x="449.155" y="547.085" name="investment">
+					<pts>
+						<pt x="490.179" y="547.085"/>
+						<pt x="408.132" y="547.085"/>
+					</pts>
+				</flow>
+				<flow label_side="bottom" x="251.5" y="612.308" name="production">
+					<pts>
+						<pt x="204.187" y="612.308"/>
+						<pt x="310.813" y="612.308"/>
+					</pts>
+				</flow>
+				<stock label_side="bottom" x="134.769" y="103.292" name="population"/>
+				<stock label_side="bottom" x="141.733" y="235.853" name="labour\nproductivity"/>
+				<stock background="white" label_side="center" x="420.786" y="147.078" name="wage"/>
+				<aux label_side="left" x="318.37" y="266.942" name="wage\nbill"/>
+				<aux background="white" label_side="left" label_angle="135" x="298.727" y="366.602" name="profits"/>
+				<aux label_side="right" x="981.94" y="593.989" name="economic\ngrowth rate"/>
+				<connector uid="2" angle="0.744104">
+					<from>
+						<alias uid="3"/>
+					</from>
+					<to>economic_growth_rate</to>
+				</connector>
+				<aux label_side="right" x="981.94" y="630.418" name="zero"/>
+				<aux label_side="right" x="208.617" y="235.893" name="employed\npopulation"/>
+				<aux label_side="right" x="981.94" y="558.959" name="wage share"/>
+				<connector uid="4" angle="358.915">
+					<from>
+						<alias uid="5"/>
+					</from>
+					<to>wage_share</to>
+				</connector>
+				<flow x="71.2992" y="237.596" name="productivity\nchange">
+					<pts>
+						<pt x="23.3654" y="237.596"/>
+						<pt x="119.233" y="237.596"/>
+					</pts>
+				</flow>
+				<flow x="71.0095" y="102.75" name="reproduction">
+					<pts>
+						<pt x="29.75" y="102.75"/>
+						<pt x="112.269" y="102.75"/>
+					</pts>
+				</flow>
+				<connector uid="6" angle="154.335">
+					<from>population</from>
+					<to>reproduction</to>
+				</connector>
+				<connector uid="7" angle="154.748">
+					<from>labour_productivity</from>
+					<to>productivity_change</to>
+				</connector>
+				<aux background="#E6E6E6" label_side="top" x="431.155" y="366.602" name="interest\npayments"/>
+				<stock background="#E6E6E6" label_side="center" x="459.155" y="450.75" name="debt"/>
+				<flow isee:segment_with_valve="0" background="#E6E6E6" label_side="top" x="395.703" y="450.75" name="new\nloans">
+					<pts>
+						<pt x="354.75" y="450.75"/>
+						<pt x="436.655" y="450.75"/>
+					</pts>
+				</flow>
+				<connector uid="8" angle="91.5466">
+					<from>debt</from>
+					<to>interest_payments</to>
+				</connector>
+				<connector uid="9" angle="148.546">
+					<from>interest_payments</from>
+					<to>profits</to>
+				</connector>
+				<connector uid="10" angle="237.102">
+					<from>profits</from>
+					<to>new_loans</to>
+				</connector>
+				<connector uid="11" angle="47.4182">
+					<from>employed_population</from>
+					<to>wage_bill</to>
+				</connector>
+				<connector uid="12" angle="267.438">
+					<from>wage</from>
+					<to>wage_bill</to>
+				</connector>
+				<connector uid="13" angle="229.707">
+					<from>wage_bill</from>
+					<to>profits</to>
+				</connector>
+				<connector uid="14" angle="259.625">
+					<from>capital</from>
+					<to>production</to>
+				</connector>
+				<connector uid="15" angle="127.026">
+					<from>production</from>
+					<to>profits</to>
+				</connector>
+				<connector uid="16" angle="345.111">
+					<from>labour_productivity</from>
+					<to>employed_population</to>
+				</connector>
+				<connector uid="17" angle="139.763">
+					<from>production</from>
+					<to>employed_population</to>
+				</connector>
+				<flow label_side="bottom" x="326.941" y="546.75" name="depreciation">
+					<pts>
+						<pt x="363.132" y="546.75"/>
+						<pt x="266.75" y="546.75"/>
+					</pts>
+				</flow>
+				<connector uid="18" angle="51.8093">
+					<from>profits</from>
+					<to>investment</to>
+				</connector>
+				<connector uid="19" angle="331.604">
+					<from>new_loans</from>
+					<to>investment</to>
+				</connector>
+				<flow label_side="bottom" x="352.018" y="146.792" name="wage\nadjustment">
+					<pts>
+						<pt x="293.75" y="146.792"/>
+						<pt x="398.286" y="146.792"/>
+					</pts>
+				</flow>
+				<aux label_side="right" label_angle="45" x="389.286" y="85.322" name="wage\nadjustment\ndelay"/>
+				<connector uid="20" angle="209.649">
+					<from>wage_adjustment_delay</from>
+					<to>wage_adjustment</to>
+				</connector>
+				<connector uid="21" angle="155.035">
+					<from>wage</from>
+					<to>wage_adjustment</to>
+				</connector>
+				<aux label_side="right" label_angle="45" x="263.459" y="67.322" name="employment\nrate gap"/>
+				<aux label_side="right" label_angle="315" x="204.459" y="103.292" name="employment\nrate"/>
+				<connector uid="22" angle="51.8159">
+					<from>employment_rate</from>
+					<to>employment_rate_gap</to>
+				</connector>
+				<connector uid="23" angle="343.397">
+					<from>population</from>
+					<to>employment_rate</to>
+				</connector>
+				<connector uid="24" angle="122.938">
+					<from>employed_population</from>
+					<to>employment_rate</to>
+				</connector>
+				<connector uid="25" angle="352.1">
+					<from>employment_rate_gap</from>
+					<to>wage_adjustment</to>
+				</connector>
+				<stock background="white" label_side="top" x="450.63" y="272.515" name="price of\ncommodities"/>
+				<aux background="#E6E6E6" label_side="right" x="546.074" y="224.043" name="cost per unit\nof output"/>
+				<connector uid="26" angle="237.976">
+					<from>cost_per_unit_of_output</from>
+					<to>price_adjustment</to>
+				</connector>
+				<flow background="#E6E6E6" label_side="bottom" x="514.464" y="274.583" name="price\nadjustment">
+					<pts>
+						<pt x="567.797" y="274.583"/>
+						<pt x="473.13" y="274.583"/>
+					</pts>
+				</flow>
+				<aux background="#E6E6E6" label_side="right" label_angle="315" x="600.512" y="272.515" name="price\nadjustment\ndelay"/>
+				<connector uid="27" angle="216.852">
+					<from>price_adjustment_delay</from>
+					<to>price_adjustment</to>
+				</connector>
+				<connector uid="28" angle="28.3632">
+					<from>price_of_commodities</from>
+					<to>price_adjustment</to>
+				</connector>
+				<connector uid="29" angle="177.125">
+					<from>
+						<alias uid="30"/>
+					</from>
+					<to>cost_per_unit_of_output</to>
+				</connector>
+				<connector uid="31" angle="174.721">
+					<from>price_of_commodities</from>
+					<to>profits</to>
+				</connector>
+				<connector uid="32" angle="5.25358">
+					<from>wage</from>
+					<to>cost_per_unit_of_output</to>
+				</connector>
+				<aux label_side="left" x="222.459" y="27.292" name="employment\nrate threshold"/>
+				<connector uid="33" angle="287.468">
+					<from>employment_rate_threshold</from>
+					<to>employment_rate_gap</to>
+				</connector>
+				<connector uid="34" angle="34.3635">
+					<from>
+						<alias uid="3"/>
+					</from>
+					<to>wage_share</to>
+				</connector>
+				<stacked_container uid="35" x="900.5" y="278.168" width="180" height="130">
+					<graph font_family="Helvetica" font_size="11pt" legend_position="none" isee:transparent="true" isee:hide_border="true" axis_title_font_family="Helvetica" axis_title_font_size="11pt" axis_label_font_family="Helvetica" axis_label_font_size="11pt" x="900.5" y="278.168" width="180" height="130" type="time_series" isee:points_only="false" show_grid="false" include_units_in_legend="false" plot_numbers="false" isee:label_pie_slices="false" num_x_grid_lines="0" num_y_grid_lines="0" num_x_labels="0" num_y_labels="2" title="wage share" isee:fill_intensity="0.1" from="0" left_axis_title=" " left_axis_multi_scale="false" left_axis_auto_scale="true" right_axis_multi_scale="false" right_axis_auto_scale="true">
+						<plot color="black" isee:keep_zero_visible="true" pen_width="1" index="0" show_y_axis="true">
+							<entity name="wage_share"/>
+							<scale max="1.1"/>
+						</plot>
+					</graph>
+				</stacked_container>
+				<stacked_container uid="36" x="720.5" y="144.787" width="180" height="130">
+					<graph font_family="Helvetica" font_size="11pt" legend_position="bottom" isee:transparent="true" isee:hide_border="true" axis_title_font_family="Helvetica" axis_title_font_size="11pt" axis_label_font_family="Helvetica" axis_label_font_size="11pt" x="720.5" y="144.787" width="180" height="130" type="time_series" isee:points_only="false" show_grid="false" include_units_in_legend="false" plot_numbers="false" isee:label_pie_slices="false" num_x_grid_lines="0" num_y_grid_lines="0" num_x_labels="0" num_y_labels="2" isee:fill_intensity="0.1" left_axis_title=" " left_axis_multi_scale="false" left_axis_auto_scale="true" right_axis_multi_scale="false" right_axis_auto_scale="true">
+						<plot color="black" pen_width="2" index="0" show_y_axis="true">
+							<entity name="wage_bill"/>
+						</plot>
+						<plot color="black" pen_width="1" index="1" show_y_axis="true">
+							<entity name="profits"/>
+						</plot>
+					</graph>
+				</stacked_container>
+				<stacked_container uid="37" x="720.5" y="14.7867" width="180" height="130">
+					<graph font_family="Helvetica" font_size="11pt" legend_position="none" isee:transparent="true" isee:hide_border="true" axis_title_font_family="Helvetica" axis_title_font_size="11pt" axis_label_font_family="Helvetica" axis_label_font_size="11pt" x="720.5" y="14.7867" width="180" height="130" type="time_series" isee:points_only="false" show_grid="false" include_units_in_legend="false" plot_numbers="false" isee:label_pie_slices="false" num_x_grid_lines="0" num_y_grid_lines="0" num_x_labels="0" num_y_labels="2" title="capital" isee:fill_intensity="0.1" left_axis_title=" " left_axis_multi_scale="false" left_axis_auto_scale="true" right_axis_title="capital" right_axis_multi_scale="false" right_axis_auto_scale="true">
+						<plot color="black" pen_width="2" index="0" show_y_axis="true">
+							<entity name="capital"/>
+						</plot>
+					</graph>
+				</stacked_container>
+				<stacked_container uid="38" x="900.5" y="14.7867" width="180" height="130">
+					<graph font_family="Helvetica" font_size="11pt" legend_position="none" isee:transparent="true" isee:hide_border="true" axis_title_font_family="Helvetica" axis_title_font_size="11pt" axis_label_font_family="Helvetica" axis_label_font_size="11pt" x="900.5" y="14.7867" width="180" height="130" type="time_series" isee:points_only="false" show_grid="false" include_units_in_legend="false" plot_numbers="false" isee:label_pie_slices="false" num_x_grid_lines="0" num_y_grid_lines="0" num_x_labels="0" num_y_labels="2" title="rate of economic growth" isee:fill_intensity="0.1" from="0" left_axis_title=" " left_axis_multi_scale="false" left_axis_auto_scale="true" right_axis_multi_scale="false" right_axis_auto_scale="true">
+						<plot color="black" pen_width="1" index="0" show_y_axis="true">
+							<entity name="economic_growth_rate"/>
+						</plot>
+						<plot color="black" pen_style="dotted" pen_width="1" index="1" show_y_axis="true">
+							<entity name="zero"/>
+						</plot>
+					</graph>
+				</stacked_container>
+				<stacked_container uid="39" x="900.5" y="144.787" width="180" height="130">
+					<graph font_family="Helvetica" font_size="11pt" legend_position="bottom" isee:transparent="true" isee:hide_border="true" axis_title_font_family="Helvetica" axis_title_font_size="11pt" axis_label_font_family="Helvetica" axis_label_font_size="11pt" x="900.5" y="144.787" width="180" height="130" type="time_series" isee:points_only="false" show_grid="false" include_units_in_legend="false" plot_numbers="false" isee:label_pie_slices="false" num_x_grid_lines="0" num_y_grid_lines="0" num_x_labels="0" num_y_labels="2" isee:fill_intensity="0.1" left_axis_title=" " left_axis_multi_scale="false" left_axis_auto_scale="false" right_axis_title="capital" right_axis_multi_scale="false" right_axis_auto_scale="true">
+						<plot color="black" isee:keep_zero_visible="true" pen_width="1" index="0" show_y_axis="true">
+							<entity name="employment_rate"/>
+							<scale max="1"/>
+						</plot>
+						<plot color="black" pen_style="dotted" pen_width="1" index="1" show_y_axis="true">
+							<entity name="employment_rate_threshold"/>
+						</plot>
+					</graph>
+				</stacked_container>
+				<stacked_container uid="40" x="749.4" y="278.168" width="151.094" height="130">
+					<graph font_family="Helvetica" font_size="11pt" legend_position="none" isee:transparent="true" isee:hide_border="true" axis_title_font_family="Helvetica" axis_title_font_size="11pt" axis_label_font_family="Helvetica" axis_label_font_size="11pt" x="749.4" y="278.168" width="151.094" height="130" type="scatter" x_axis_auto_scale="true" connect_dots="true" single_point="false" show_grid="false" include_units_in_legend="false" plot_numbers="false" isee:label_pie_slices="false" num_x_grid_lines="0" num_y_grid_lines="0" num_x_labels="0" num_y_labels="0" title="limit cycle" isee:fill_intensity="0.1" left_axis_multi_scale="false" left_axis_auto_scale="true" right_axis_title="capital" right_axis_multi_scale="false" right_axis_auto_scale="true">
+						<plot color="red" pen_style="dot_dashed" pen_width="1" index="0" show_y_axis="true">
+							<entity name="wage_share"/>
+						</plot>
+						<plot color="black" title="effect of gap" pen_width="1" index="1" show_y_axis="true">
+							<entity name="employment_rate_gap"/>
+						</plot>
+					</graph>
+				</stacked_container>
+				<text_box font_weight="bold" text_align="center" vertical_text_align="center" font_family="Helvetica" font_size="11pt" border_width="0" appearance="transparent" uid="41" x="720.9" y="69.0997" width="18.5" height="21.375">A:</text_box>
+				<text_box font_weight="bold" text_align="center" vertical_text_align="center" font_family="Helvetica" font_size="11pt" border_width="0" appearance="transparent" uid="42" x="900.5" y="69.0997" width="18.5" height="21.375">B:</text_box>
+				<text_box font_weight="bold" text_align="center" vertical_text_align="center" font_family="Helvetica" font_size="11pt" border_width="0" appearance="transparent" uid="43" x="720.9" y="199.1" width="18.5" height="21.375">C:</text_box>
+				<text_box font_weight="bold" text_align="center" vertical_text_align="center" font_family="Helvetica" font_size="11pt" border_width="0" appearance="transparent" uid="44" x="903.57" y="199.1" width="18.5" height="21.375">D:</text_box>
+				<text_box font_weight="bold" text_align="center" vertical_text_align="center" font_family="Helvetica" font_size="11pt" border_width="0" appearance="transparent" uid="45" x="720.9" y="332.48" width="18.5" height="21.375">E:</text_box>
+				<text_box font_weight="bold" text_align="center" vertical_text_align="center" font_family="Helvetica" font_size="11pt" border_width="0" appearance="transparent" uid="46" x="903.57" y="332.48" width="18.5" height="21.375">F:</text_box>
+				<aux x="528.074" y="547.085" name="price of\ncapital"/>
+				<connector uid="47" angle="208.162">
+					<from>price_of_capital</from>
+					<to>investment</to>
+				</connector>
+				<aux x="166.269" y="612.308" name="output per\nunit capital"/>
+				<connector uid="48" angle="330.533">
+					<from>output_per_unit_capital</from>
+					<to>production</to>
+				</connector>
+				<aux background="#E6E6E6" label_side="left" x="377.703" y="384.602" name="interest\nrate"/>
+				<connector uid="49" angle="332.963">
+					<from>interest_rate</from>
+					<to>interest_payments</to>
+				</connector>
+				<aux label_side="left" x="308.941" y="503.75" name="depreciation\nrate"/>
+				<connector uid="50" angle="244.846">
+					<from>depreciation_rate</from>
+					<to>depreciation</to>
+				</connector>
+				<aux label_side="top" x="53.2992" y="190.442" name="productivity\nchange rate"/>
+				<connector uid="51" angle="242.743">
+					<from>productivity_change_rate</from>
+					<to>productivity_change</to>
+				</connector>
+				<aux label_side="top" x="53.2992" y="54.519" name="reproduction\nrate"/>
+				<connector uid="52" angle="242.724">
+					<from>reproduction_rate</from>
+					<to>reproduction</to>
+				</connector>
+				<connector uid="53" angle="327.709">
+					<from>
+						<alias uid="54"/>
+					</from>
+					<to>wage_share</to>
+				</connector>
+				<alias font_style="italic" label_side="left" uid="3" x="921.71" y="584.989" width="18" height="18">
+					<of>production</of>
+				</alias>
+				<alias font_style="italic" label_side="left" uid="5" x="921.71" y="548.989" width="18" height="18">
+					<of>wage_bill</of>
+				</alias>
+				<alias background="#E6E6E6" font_style="italic" label_side="top" uid="30" x="586.75" y="164.578" width="45" height="35">
+					<of>labour_productivity</of>
+				</alias>
+				<alias background="white" font_style="italic" label_side="left" uid="54" x="921.71" y="513.959" width="18" height="18">
+					<of>price_of_commodities</of>
+				</alias>
+			</view>
+			<view background="white" page_width="1066" page_height="600" home_view="true" type="interface">
+				<style/>
+			</view>
+			<isee:templates>
+				<view background="white" page_width="1066" page_height="600" type="template">
+					<style/>
+				</view>
+			</isee:templates>
+			<isee:stories/>
+		</views>
+	</model>
+</xmile>
+
