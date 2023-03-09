@@ -87,5 +87,69 @@ summary(instr_eval1)
 ```
 
 ```{r}
-instr_eval2 <- lme4(y ~ d + (1 | s))
+instr_eval2 <- lm(y ~ service + dept + d, data=InstEval)
+summary(instr_eval2)
 ```
+```{r}
+instr_eval3 <- lm(y ~ service + dept + d + service:d, data=InstEval)
+summary(instr_eval3)
+```
+```{r}
+anova(instr_eval2, instr_eval3)
+```
+
+## Mixed Effect Models
+```{r}
+me_instr_eval1 <- lmer(y ~ service + dept + d + d:service + (1 | studage / s), data=InstEval)
+summary(me_instr_eval1)
+```
+
+```{r}
+anova(me_instr_eval1)
+```
+
+```{r}
+me_instr_eval2 <- lmer(y ~ service + dept + d + d:service + (1 | s), data=InstEval)
+summary(me_instr_eval2)
+```
+
+```{r}
+anova(me_instr_eval2, me_instr_eval1)
+
+```
+
+In conclusion, nesting students in student age doesn't really help.
+
+When you look at the effect size and polarity of d12 in each of the models above,
+it varies wildly. This bothered me at first: shouldn't at least the direction of the
+effect be consistent? But then I realized that the regressions aren't giving us
+inconsistent information, they are just saying, if this is your model of how
+things work, this is the effect we see.
+
+For example, when we don't include department, d12 cannot be differentiated from
+the mean score. However, when we include department and service in the regression, she
+appears to have a highly significant, highly positive effect on her rating. However,
+when we include dept:service, she suddenly has a highly *negative* effect on ratings.
+That is to say that her mix of department and service schedule explains her high ratings.
+
+By which measure should she be evaluated? Which one is the *truth*? The answer is that
+none of them are true, they are simply metrics that fall out of how you choose to
+explain lecture ratings.
+
+## Mixed Effect Model Data Simulation
+
+Our previous models were a little too complicated for data simulation so we will
+train a simple mixed effect model:
+
+```{r}
+simple_me_reg <- lmer(y ~ service + d + (1 | dept), data=InstEval)
+summary(simple_me_reg)
+```
+
+```{r}
+
+```
+A mixed effect model can be written in two ways. First, in this form:
+$$
+y_i = X \beta + Z \alpha + \epsilon
+$$
