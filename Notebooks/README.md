@@ -12,7 +12,7 @@ network inference via process motifs, multivariate transfer entropy and vector a
 1. [NetworkInferenceMethods.Rmd](R/NetworkInferenceMethods.pdf) also explores network inference
 methods. It examines GraphicalVAR and the unified structural equation model.
 
-1. [VARvsODE.ipynb] looks at what happens when vector autoregression attempts to learn a
+1. [VARvsODE.ipynb](Jupyter/VARvsODE.ipynb) looks at what happens when vector autoregression attempts to learn a
 simple linear ODE. This investigates the effects of adding noise and detrending on stationarity and 
 statistical significance.
 
