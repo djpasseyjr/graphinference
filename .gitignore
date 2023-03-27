@@ -28,7 +28,7 @@ Data/*/*.py
 *.fdb_latexmk
 *.fls
 *.synctex.gz
-
+*.out
 
 ## Boilerplate Python .gitignore:
 

@@ -22,6 +22,112 @@ renv::activate(proj_dir)
 
 library(lme4)
 ```
+# Mixed Effect vs Multilevel Model
+
+
+### Mixed Effect Model
+
+A mixed effect model can be written in the form:
+$$
+Y =\mu + X \beta + Z \alpha + \epsilon
+$$
+Here, $\beta$ represents the fixed effects, and $\alpha$ represents the random effects. The matrix $X$ contains all the factors from the data, either continuous or one hot encoded categorical values. 
+
+The matrix $Z$ includes the random effect factors. If no random slopes are to be estimated, then Z will be a zero-one matrix. In this case, the $\alpha$ values are effectively intercepts corresponding to class inclusion.
+
+However, when random slopes are included in the model we model class inclusion as having an impact on the slope of the individuals response to a given variable. For example, if we are measuring blood pressure and predicting mood, we might want to model each person in the study as having a random intercept (some are happier than others) and also having different relationships between blood pressure and mood. For some, higher blood pressure means they are excited and happy, for others, higher blood pressure means they are anxious.
+
+In this case, a row of the $Z$ matrix would have $n$ entries where only one of them, entry $i$, is equal to one. This is the one hot encoding of person ID and corresponds to the random intercept. The next $n$ entries would correspond to blood pressure, one hot encoded to align with person ID. That is, at the same relative location in the second half of the row, entry $n + i$, the $Z$ matrix would have the person's blood pressure and every other entry between $n$ and $2n$ would be zero.
+
+Thus $\alpha_i$ is the random intercept of mood for person $i$ and $\alpha_{n+i}$ is the random slope that models how the blood pressure of person $i$ affects their mood.
+
+However, the model does not estimate the random effects. It only estimates the *variance* of the random effects.
+
+Therefore, to make a prediction, about person $i$ you would need to draw a random intercept and slope from normal distributions with zero mean and the estimated variances of the random intercept and slope respectively. Then you could pass data to your model.
+
+What is weird about this is that mixed effect models predict differently every time. In order to capture person specific information, you would probably want to fit a new regression without random effects just to that specific person.
+
+Great [video](https://www.youtube.com/watch?v=n_lz5I4POqk&t=219s) about this here.
+
+### Multilevel model
+
+A multilevel model is a specific kind of mixed effect model. It is usually written as two "levels". The example equations given here represent the least parsimonious multilevel model, given the number of covariates considered. It is possible to specify multilevel models that omit some of the following terms.
+
+**Level one:**
+$$
+y_{ij} = \beta_{0j} + \beta_{1j} \, x_{1ij} + \beta_{2j}\, x_{2ij} + e_{ij}
+$$
+Here $y_ij$ represents the dependent variable. The index $j$ denotes the group and ranges from $1, 2, ..., g$ and the variable $i$ denotes the within-group index and ranges from $1, 2, ..., N_g$. Each group can have a different number of observed values of $y$, thus $N_j$, the total number of observations varies based on group.
+
+For example, a modeler might try to predict income, grouping by race. If there are five races $g = 5$. If the first race, $j=1$, is Native American and the second race, $j=2$ is Asian and the data includes 300 Native American income values and 100 Asian income values, then $N_1 = 300$ and $N_2=100$.
+
+The next value, $\beta_{0j}$ is an intercept that varies depending on the group. Continuing with our previous example, $\beta_{02}$ would be the intercept for Asian income.
+
+The coefficient $\beta_{1j}$ is a coefficient that varies based on group. It represent the effect of the first factor in the model $x_{1ij}$ on income. If the first factor is education, then the group indexing of $\beta_{1j}$ allows the effect of education on income to vary among the groups.
+
+The first factor is represented by $x_{1ij}$. The first index is 1 and denotes that this is the first factor in the model. The index $j$ denotes the group membership of this observation and $i$ denotes the index of the observation as it relates to the total number of observations within the group $j$.
+
+The next term $\beta_{2j} x_{2ij}$ has the same interpretation as the term above, except relating to the second factor in the model. Continuing with our example, $x_{2ij}$ might represent age.
+
+We assume $e_{ij} \sim \text{N}(0, \sigma_e)$.
+
+**Level Two: **
+In a multilevel model, we can describe each of the $\beta$ values from  the level one equation with another equation.
+
+$$
+\beta_{0j} = \gamma_{00} + \gamma_{01}w_{1j} + \gamma_{02}w_{2j} + u_{0j} \\
+\beta_{1j} = \gamma_{10} + \gamma_{11}w_{1j} + \gamma_{12}w_{2j} + u_{1j} \\
+\beta_{2j} = \gamma_{20} + \gamma_{21}w_{1j} + \gamma_{22}w_{2j} + u_{2j} \\
+$$
+In each of these equations, we describe $\beta_{kj}$ a linear combination of an intercept, group specific covariates, $w1j$ and $w2j$, and an error term, $u_{kj}$.
+
+It is important that the group specific covariates take on only one value per group. In our example where the data is grouped by race, $w1j$ might represent the percent of the United States that identifies as that race. Then, $w_{11}$  be the percent of the U.S. that identifies as Native American because $j=1$ is the group index for Native American. Notice that to know the value of $w_{1j}$ all we need is a specific group index $j$. As another example is $w_{2j}$ might equal the number of millionaires who identify as that race. Once again, the special covariates $w_{1j}$ and $w_{2j}$ are uniform accross the *entire* group and do not vary within the group.
+
+As a counter-example, $w_{1j}$ and $w_{2j}$ cannot correspond to variables like age, because this covariate is not the same for everyone of a particular race. To see that this aligns with the notation, let's imagine that $w_{1j}$ did correspond to age. If this were true we would need an additional index, e.g. $w_{1ij}$ to denote variation in the value of $w_{1j}$ that cannot be explained by group membership alone.
+
+This requirement on the $w$s comes from the assumption that some covariates are "nested". (But if a covariate is not nested, it can still be included in the model as an additional covariate e.g. $x_{3ij}$.)
+
+The variable $u_{kj}$s are modeled as correlated mean zero gaussian random variables.
+
+### Interactions
+For the second level two equation, we recall that in our example, $beta_{1j}$ models the effect of education on income. Since
+$$
+\beta_{1j} x_{1ij}=\big( \gamma_{10} + \gamma_{11}w_{1j} + \gamma_{12}w_{2j} + u_{1j} \big) x_{1ij} \\
+\beta_{1j} x_{1ij}= \gamma_{10}\, x_{1ij} + \gamma_{11}w_{1j}\, x_{1ij} + \gamma_{12}w_{2j} \, x_{1ij} + u_{1j} \, x_{1ij}
+$$
+each sub-term of $\beta_{1j}$ captures a different way that group, and group covariates relate to the dependent variable.
+
+In our example, the first term $\gamma_{10}x_{1ij}$ is a fixed effect that models the overall linear relationship between education and income without taking race into account.
+
+The next two terms, $\gamma_{11}w_{1j}\, x_{1ij} + \gamma_{12}w_{2j} \, x_{1ij}$ are interaction terms that represent the interaction between $x_{1ij}$ and the group specific covariates $w_{1j}$ and $w_{2j}$. In our example these represent the interaction between education and the percent of the population that identifies as race $j$ and education and the number of CEOs that identify as race $j$. (Our example breaks dow here as these interaction terms seem sort of silly to model.)
+
+The last term $u_{1j} \, x_{1ij}$ represents a random slope that describes the manner in which the relationship between education and income changes for each race. We model the standard deviation and correlation of $u$s just like we do for normal random effects.
+
+### Reduced Equation
+
+The reduced equation is when we replace each $\beta$ with its level 2 equation. This gives:
+
+$$
+y_{ij} = \gamma_{00} + \gamma_{01}w_{1j} + \gamma_{02}w_{2j} + u_{0j} \\
+
+\qquad + \gamma_{10}\, x_{1ij} + \gamma_{11}w_{1j} \, x_{1ij} + \gamma_{12}w_{2j} \, x_{1ij} + u_{1j} \, x_{1ij} \\
+
+\qquad + \gamma_{20}\, x_{2ij} + \gamma_{21}w_{1j} \, x_{2ij} + \gamma_{22}w_{2j} \, x_{2ij} + u_{2j} \, x_{2ij}
+$$
+At this point, we have reduced the multilevel model to a mixed effect model with interaction terms on nested group covariates. We can reorganize this equation and group the terms by type:
+
+$$
+y_{ij} = \gamma_{00}  \text{ (fixed effect intercept)}\\
+
+\qquad + \gamma_{10} \, x_{1ij}  + \gamma_{20}\, x_{2ij} \text{ (fixed effects of covariates)} \\
+
++ \gamma_{01}w_{1j} + \gamma_{02}w_{2j} \text{ (fixed effects of group covariates)}\\
+
+
++ \gamma_{11}w_{1j} \, x_{1ij} + \gamma_{12}w_{2j} \, x_{1ij} + \gamma_{21}w_{1j} \, x_{2ij} + \gamma_{22}w_{2j} \, x_{2ij} \text{ (interaction terms)}\\
+
++ u_{0j}  + u_{2j} \, x_{2ij} + u_{1j} \, x_{1ij} \text{( random intercepts and slopes)}\\
+$$
 
 # Dataset: `InstEval`
 
@@ -145,11 +251,3 @@ train a simple mixed effect model:
 simple_me_reg <- lmer(y ~ service + d + (1 | dept), data=InstEval)
 summary(simple_me_reg)
 ```
-
-```{r}
-
-```
-A mixed effect model can be written in two ways. First, in this form:
-$$
-y_i = X \beta + Z \alpha + \epsilon
-$$

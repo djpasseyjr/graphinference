@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xmile version="1.0" xmlns="http://docs.oasis-open.org/xmile/ns/XMILE/v1.0" xmlns:isee="http://iseesystems.com/XMILE" xmlns:simlin="https://simlin.com/XMILE/v1.0">
+    <header>
+        <name>Financial Instability</name>
+        <vendor>Simlin</vendor>
+        <product version="0.1.0" lang="en">Simlin</product>
+    </header>
+    <sim_specs method="euler">
+        <start>0</start>
+        <stop>100</stop>
+        <dt>1</dt>
+    </sim_specs>
+    <model>
+        <variables>
+            <stock name="output">
+                <eqn>100</eqn>
+                <inflow>change_in_output</inflow>
+            </stock>
+            <flow name="change_in_output">
+                <eqn>Output * (net_investment / accelerator - depreciation_rate)</eqn>
+            </flow>
+            <stock name="employment">
+                <eqn>employment_rate*population</eqn>
+                <inflow>change_in_employment</inflow>
+            </stock>
+            <flow name="change_in_employment">
+                <eqn>(change_in_output - productivity_growth_rate * output) / productivity</eqn>
+            </flow>
+            <stock name="employment_rate">
+                <eqn>0.9</eqn>
+                <inflow>change_in_employment_rate</inflow>
+            </stock>
+            <flow name="change_in_employment_rate">
+                <eqn>employment_rate * (net_investment / accelerator - productivity_growth_rate - labor_force_growth_rate -depreciation_rate) </eqn>
+            </flow>
+            <stock name="workers_share">
+                <eqn>initial_workers_share</eqn>
+                <inflow>change_in_workers_share</inflow>
+            </stock>
+            <flow name="change_in_workers_share">
+                <eqn>workers_share * (wage_change - productivity_growth_rate)</eqn>
+            </flow>
+            <stock name="debt_ratio">
+                <eqn>initial_debt_ratio</eqn>
+                <inflow>change_in_debt_ratio</inflow>
+            </stock>
+            <flow name="change_in_debt_ratio">
+                <eqn>bankers_share - profit_share - (accelerator - debt_ratio) * (net_investment / accelerator - depreciation_rate)</eqn>
+            </flow>
+            <stock name="bankers_share">
+                <eqn>initial_bankers_share</eqn>
+                <inflow>change_in_bankers_share</inflow>
+            </stock>
+            <flow name="change_in_bankers_share">
+                <eqn>(interest_rate_slope * debt_ratio + interest_rate) * change_in_debt_ratio</eqn>
+            </flow>
+            <aux name="accelerator">
+                <eqn>3</eqn>
+            </aux>
+            <aux name="productivity_growth_rate">
+                <eqn>0.015</eqn>
+            </aux>
+            <aux name="labor_force_growth_rate">
+                <eqn>0.035</eqn>
+            </aux>
+            <aux name="depreciation_rate">
+                <eqn>0.02</eqn>
+            </aux>
+            <aux name="initial_population">
+                <eqn>200</eqn>
+            </aux>
+            <aux name="wage_change">
+                <eqn>(0.0000641 / (1 - employment_rate)^2) - 0.0400641</eqn>
+            </aux>
+            <aux name="net_investment_positive_profit">
+                <eqn>0.0175 / (0.53 - 6 * profit_share / accelerator)^2 - 0.065</eqn>
+            </aux>
+            <aux name="positive_profit_indicator">
+                <eqn>1 / (1 + exp_profit_share)</eqn>
+                <doc>Sigmoid of profit share. Created because Simlin doesn&apos;t have a conditional function. Evaluates to 0 when profit share is negative and 1 when profit share is positive.</doc>
+            </aux>
+            <aux name="profit_share">
+                <eqn>1 - bankers_share - workers_share</eqn>
+            </aux>
+            <aux name="net_investment">
+                <eqn>positive_profit_indicator * net_investment_positive_profit</eqn>
+            </aux>
+            <aux name="exp_profit_share">
+                <eqn>(1 - (1000*profit_share)/10000)^10000</eqn>
+                <doc>Approximation of the exponential function e^(-100*profit_share). Lim n -&gt; inf of (1 + x/n)^n = e^x </doc>
+            </aux>
+            <aux name="initial_workers_share">
+                <eqn>0.8</eqn>
+            </aux>
+            <aux name="initial_bankers_share">
+                <eqn>0.02</eqn>
+            </aux>
+            <aux name="initial_debt_ratio">
+                <eqn>0.2</eqn>
+            </aux>
+            <aux name="interest_rate_slope">
+                <eqn>0.01</eqn>
+            </aux>
+            <aux name="interest_rate_intercept">
+                <eqn>0.001</eqn>
+            </aux>
+            <aux name="interest_rate">
+                <eqn>interest_rate_slope * debt_ratio + interest_rate_intercept</eqn>
+            </aux>
+            <stock name="population">
+                <eqn>initial_population</eqn>
+                <inflow>change_in_population</inflow>
+            </stock>
+            <flow name="change_in_population">
+                <eqn>population*labor_force_growth_rate</eqn>
+            </flow>
+            <aux name="initial_productivity">
+                <eqn>1</eqn>
+            </aux>
+            <stock name="productivity">
+                <eqn>initial_productivity</eqn>
+                <inflow>change_in_productivity</inflow>
+            </stock>
+            <flow name="change_in_productivity">
+                <eqn>productivity_growth_rate * productivity</eqn>
+            </flow>
+        </variables>
+        <views>
+            <view isee:show_pages="false" page_width="800" page_height="600" view_type="stock_flow">
+                <stock name="Output" x="308.7176208496094" y="166.31698608398438" label_side="bottom"></stock>
+                <flow name="Change in Output" x="220.33872274278264" y="162.89028930664063" label_side="bottom">
+                    <pts>
+                        <pt x="155.31056213378906" y="162.89028930664063"></pt>
+                        <pt x="286.2176208496094" y="162.89028930664063"></pt>
+                    </pts>
+                </flow>
+                <stock name="Employment" x="301.1794738769531" y="274.8927307128906" label_side="bottom"></stock>
+                <flow name="Change in Employment" x="220.11803030690174" y="275.18212890625" label_side="bottom">
+                    <pts>
+                        <pt x="161.6556396484375" y="275.18212890625"></pt>
+                        <pt x="278.6794738769531" y="275.18212890625"></pt>
+                    </pts>
+                </flow>
+                <stock name="Employment Rate" x="311.7621154785156" y="368.73291015625" label_side="bottom"></stock>
+                <flow name="Change in Employment Rate" x="237.0722580519032" y="367.87921142578125" label_side="bottom">
+                    <pts>
+                        <pt x="158.9703369140625" y="367.87921142578125"></pt>
+                        <pt x="289.2621154785156" y="367.87921142578125"></pt>
+                    </pts>
+                </flow>
+                <stock name="Workers Share" x="576.4833780924479" y="173.21649169921875" label_side="bottom"></stock>
+                <flow name="Change in Workers Share" x="496.9838522511364" y="165.10629272460938" label_side="bottom">
+                    <pts>
+                        <pt x="417.8037414550781" y="165.10629272460938"></pt>
+                        <pt x="553.9833780924479" y="165.10629272460938"></pt>
+                    </pts>
+                </flow>
+                <stock name="Debt Ratio" x="586.534423828125" y="272.4969177246094" label_side="bottom"></stock>
+                <flow name="Change in Debt Ratio" x="498.71406280872986" y="268.0163879394531" label_side="bottom">
+                    <pts>
+                        <pt x="411.38275146484375" y="268.0163879394531"></pt>
+                        <pt x="564.034423828125" y="268.0163879394531"></pt>
+                    </pts>
+                </flow>
+                <stock name="Bankers Share" x="599.1681518554688" y="384.43670654296875" label_side="bottom"></stock>
+                <flow name="Change in Bankers Share" x="504.73631286621094" y="385.18192545572913" label_side="bottom">
+                    <pts>
+                        <pt x="410.5511779785156" y="385.18192545572913"></pt>
+                        <pt x="576.6681518554688" y="385.18192545572913"></pt>
+                    </pts>
+                </flow>
+                <aux name="Accelerator" x="220.47442626953125" y="32.954833984375" label_side="right"></aux>
+                <aux name="Productivity growth rate" x="427.27398681640625" y="30.70257568359375" label_side="right"></aux>
+                <aux name="Labor force growth rate" x="218.40549723307294" y="81.14351399739581" label_side="right"></aux>
+                <aux name="Depreciation rate" x="427.90234375" y="89.01782226562497" label_side="right"></aux>
+                <aux name="Initial Population" x="220.06406656901044" y="-1.0084838867187784" label_side="right"></aux>
+                <aux name="Wage change" x="227.73211669921875" y="473.80053710937494" label_side="right"></aux>
+                <aux name="Net investment positive profit" x="393.0417277018229" y="500.74879964192706" label_side="right"></aux>
+                <aux name="Positive profit indicator" x="391.12782796223956" y="534.2904459635415" label_side="right"></aux>
+                <aux name="Profit share" x="543.6455078125" y="448.5139973958333" label_side="right"></aux>
+                <aux name="Net investment" x="366.9047648111979" y="465.85915120442706" label_side="right"></aux>
+                <aux name="Exp profit share" x="576.6986083984375" y="530.8315022786458" label_side="right"></aux>
+                <connector angle="-12.60781919929525">
+                    <from>Profit share</from>
+                    <to>Exp profit share</to>
+                </connector>
+                <connector angle="-136.3036445620885">
+                    <from>Exp profit share</from>
+                    <to>Positive profit indicator</to>
+                </connector>
+                <connector angle="163.2867329162458">
+                    <from>Positive profit indicator</from>
+                    <to>Net investment</to>
+                </connector>
+                <connector angle="-105.356468033169">
+                    <from>Profit share</from>
+                    <to>Net investment positive profit</to>
+                </connector>
+                <connector angle="178.71620155686153">
+                    <from>Net investment positive profit</from>
+                    <to>Net investment</to>
+                </connector>
+                <aux name="Initial Workers Share" x="677.5119120279948" y="58.65464274088538" label_side="right"></aux>
+                <aux name="Initial Bankers Share" x="679.469492594401" y="26.71892293294269" label_side="right"></aux>
+                <aux name="Initial Debt Ratio" x="677.2371927897135" y="88.11044311523432" label_side="right"></aux>
+                <aux name="Interest Rate Slope" x="722.9530741373698" y="394.7362772623697" label_side="right"></aux>
+                <aux name="Interest Rate Intercept" x="692.8264668782551" y="349.98210652669263" label_side="right"></aux>
+                <aux name="Interest Rate" x="673.4315694173176" y="435.9428405761718" label_side="right"></aux>
+                <connector angle="-85.25057356456415">
+                    <from>Interest Rate Intercept</from>
+                    <to>Interest Rate</to>
+                </connector>
+                <connector angle="-120.3902822432666">
+                    <from>Interest Rate Slope</from>
+                    <to>Interest Rate</to>
+                </connector>
+                <connector angle="-173.66181612904202">
+                    <from>Interest Rate</from>
+                    <to>Change in Bankers Share</to>
+                </connector>
+                <connector angle="-153.87224557426913">
+                    <from>Interest Rate Slope</from>
+                    <to>Change in Bankers Share</to>
+                </connector>
+                <connector angle="-58.7707333813579">
+                    <from>Change in Debt Ratio</from>
+                    <to>Change in Bankers Share</to>
+                </connector>
+                <connector angle="-101.04291810433972">
+                    <from>Debt Ratio</from>
+                    <to>Change in Bankers Share</to>
+                </connector>
+                <connector angle="163.48334354983757">
+                    <from>Bankers Share</from>
+                    <to>Change in Debt Ratio</to>
+                </connector>
+                <connector angle="144.55972504876658">
+                    <from>Profit share</from>
+                    <to>Change in Debt Ratio</to>
+                </connector>
+                <stock name="Population" x="71.60750495062939" y="-6.924407958984375" label_side="bottom"></stock>
+                <flow name="Change in Population" x="-5.477499607850135" y="-6.6827392578125" label_side="bottom">
+                    <pts>
+                        <pt x="-51.516426934136234" y="-6.6827392578125"></pt>
+                        <pt x="49.10750495062939" y="-6.6827392578125"></pt>
+                    </pts>
+                </flow>
+                <aux name="Initial productivity" x="424.8276062011719" y="-4.34307861328125" label_side="right"></aux>
+                <stock name="Productivity" x="67.66970825195313" y="75.45648193359375" label_side="bottom"></stock>
+                <flow name="Change in productivity" x="-30.80319303497673" y="78.660400390625" label_side="bottom">
+                    <pts>
+                        <pt x="-79.25518798828125" y="78.660400390625"></pt>
+                        <pt x="45.169708251953125" y="78.660400390625"></pt>
+                    </pts>
+                </flow>
+            </view>
+        </views>
+    </model>
+</xmile>

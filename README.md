@@ -4,7 +4,7 @@ Infering computational networks from time series data.
 
 This repo seeks to understand algorithms that augment our ability to identify true dynamic relationships in complex systems. Because complex systems can be discontinuous, non-linear, hybrid
 systems and because they often involve a high degree of feedback and accumulation,
-the assumptions of dynamic models that are fundamentally linear in nature,
+the assumptions of explanitory models that are fundamentally linear in nature,
 like autoregressive models, fall short.
 
 But to what extent do these algorithms fail? Are they still able to provide
