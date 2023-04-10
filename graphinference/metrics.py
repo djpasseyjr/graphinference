@@ -68,7 +68,12 @@ def compare_adj_f1_score(
     false_neg = (true_adj == 1) & (pred_adj == 0)
     precision = np.sum(true_pos) / (np.sum(true_pos) + np.sum(false_pos))
     recall = np.sum(true_pos) / num_edges
-    f1 = 2 * precision * recall / (precision + recall)
+
+    f1_den = (precision + recall)
+    if f1_den < 1e-11:
+        f1 =  0.0
+    else:
+        f1 = 2 * precision * recall / f1_den
 
     if verbose:
         print(

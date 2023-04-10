@@ -70,7 +70,6 @@ def multivariate_transfer_entropy(
 
 def vector_autoregression(
         timeseries: np.ndarray,
-        num_edges: int,
         max_lag=1,
         significance=0.05,
 ):
@@ -86,7 +85,6 @@ def vector_autoregression(
     Args:
         timeseries: An (m x n) numpy array where m is the number of features and
             n is the number of observations.
-        num_edges: The number of edges that this algorithm will predict.
         max_lag: The maximum number of timesteps prior to the current timestep
             that could potentially be correlated with the current timestep.
         significance: the maximum allowable p-value for a correlation to be
