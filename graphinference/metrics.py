@@ -66,8 +66,15 @@ def compare_adj_f1_score(
     true_neg = (true_adj == 0) & (pred_adj == 0)
     false_pos = (true_adj == 0) & (pred_adj == 1)
     false_neg = (true_adj == 1) & (pred_adj == 0)
-    precision = np.sum(true_pos) / (np.sum(true_pos) + np.sum(false_pos))
-    recall = np.sum(true_pos) / num_edges
+
+    num_true_pos = np.sum(true_pos)
+    # To avoid divide by zero
+    if num_true_pos == 0:
+        precision = 0
+    else:
+        precision = num_true_pos / (num_true_pos + np.sum(false_pos))
+
+    recall = num_true_pos / num_edges
 
     f1_den = (precision + recall)
     if f1_den < 1e-11:
@@ -87,3 +94,6 @@ def compare_adj_f1_score(
             f"F1 Score: {f1}"
         )
     return f1
+
+def compare_adj_false_positive_rate(true_adj, pred_adj):
+    return np.mean((true_adj == 0) & (pred_adj == 1))
