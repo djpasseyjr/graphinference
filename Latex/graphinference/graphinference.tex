@@ -370,6 +370,9 @@
         the notebook located 
         \href{https://github.com/djpasseyjr/graphinference/blob/main/Notebooks/Jupyter/VARAlternateForms.ipynb}{here}.
         
+        Additionally, for an \textit{excellent} description of the way to interpret VAR weights see
+        \href{https://stats.stackexchange.com/questions/40905/arima-model-interpretation/63072#63072}{this stack exchange}.
+
         \section{The Approximated Jacobian as a Tool for Understanding Systems from Time Series Data}
 
         The System Dynamics software, \textit{Stella} makes use of an algorithim called 
@@ -492,6 +495,34 @@
         repository for benchmarking jacobian estimation and only
         provided a bad method for doing it but opened the space up for
         other researchers to beat me.
+
+        \section{Big Picture}
+
+        I want a method that can take in time series data and tell me the probability that
+        any variable influences any other, along with the direction of influence, positive
+        or negative, and how that influence changes with time.
+
+        Tell me the amount of change in one variable that can reasonably be explained by
+        another variable. Point me to the culprit.
+
+        Now the tricky part here is that what if there is no change in one variable,
+        but it is the main reason for the change in another variable. For example,
+        my foot is holding the gas pedal down and it is the cause of my acceleration, but
+        you could not infer that because there is no change in my foot position.
+
+        What algorithms can give me this information?
+
+        One possible route is to use SINDY and build some method of assessing uncertainty.
+
+        That is a good algorithm. One that knows when it is likely to be wrong.
+
+        I want a dynamic theory discovery algorithm that provides a measure of how related 
+        the variables are along with how uncertain it is about the relationship. I want
+        to show that when it is wrong, it knows it is wrong. That the false positive rate 
+        is controlled by the p-value.
+
+        What I need to do is put together a bunch of models and their simulations along with
+        the target, presumably a network.
 
     
             
