@@ -29,6 +29,8 @@ Data/*/*.py
 *.fls
 *.synctex.gz
 *.out
+*.blg
+*.bbl
 
 ## Boilerplate Python .gitignore:
 

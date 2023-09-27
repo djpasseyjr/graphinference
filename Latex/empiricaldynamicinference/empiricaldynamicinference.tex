@@ -1,0 +1,104 @@
+\documentclass{article}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{bm}
+\usepackage{hyperref}
+
+\title{Empirical Dynamic Inference: A  methodology for using data to model uncertainty about complex dynamics}
+\author{D.J. Passey}
+
+\begin{document}
+\maketitle
+
+\section{Posing the Question}
+As we seek to understand the world, that is, identify its forms and comprehend the complex web of connections
+that underlies the rich and varying patterns of life, we use models.
+
+Most often, these models are efficient mental constructs that we can call up in our minds in order to simulate,
+intervene and make predictions about the systems in which we live.
+
+It has been the goal of many philosophers, mathematicians and statisticians to formalize these natural
+cognitive processes. The precise logic of these formalisms enabled us to translate these operations into
+algorithms that leverage the power of modern compute.
+
+\subsection{Three Classes of Problems}
+
+Before proceeding, we make a loose distinction about three classes of problems.
+
+\begin{enumerate}
+    \item There is a class of problems (and accompanying formal models)
+    that seek to investigate the question, ``holding the system (or data generating process) constant, how can I
+    leverage past observations to predict what will happen next?'' Some examples of this are recommender
+    systems, classification problems, time series forecasting, or text completion. Many of the formal
+    models used to solve this class of problem fall under the umbrella of machine learning but some, 
+    such as probabilistic programming models, do not.
+
+    \item A second class of problems seeks to investigate the question, ``holding the system constant, how will
+    it respond to a previously unobserved intervention?''. This problem occurs when evaluating the effects of proposed
+    government policies, estimating the impact of different pharmaceuticals on the population, or understanding how
+    to intervene in an ecosystem in order to maintain the survival of a species. The methodologies for studying
+    this class of problem include causal inference, system dynamics, structural equation models and generalized regression.
+
+    \item The third class of problems, (likely the most challenging) may have the greatest potential to benefit
+    society. It investigates the question ``how can I change the system, or devise a new system that achieves a
+    desired outcome?''. Some examples of this are product design, invention, questions such as
+    ``how should we structure society?'' or ``can I create an ecosystem that produces more food than conventional
+    farming''. The toolkit for these particular problems remains ill-defined. From the vantage point of this author,
+    it appears that these problems are solved via years of intensive investigation culminating in expert knowledge
+    of \textit{how things work}. This is often the domain of theory, theory that is not always formalized into mathematics,
+    such as Foucault's analysis of the subject and power, the nitrogen cycle, or the macro-deleveraging process.
+
+\end{enumerate}
+
+At this point, an attentive reader has likely thought of problem areas that span multiple of the above classes, or tools
+that solve multiple problems. It is correct that these problems and their accompanying toolkits are \textit{highly interrelated}.
+Advanced tools from a certain class of problem can lead to advances in another class. For example, DragonNet is a neural
+network designed to estimate treatment effects from observational data  \cite{shi2019adapting}. 
+
+DragonNet also illustrates how the problems themselves are interrelated. The model's loss function optimizes both
+prediction error and treatment assignment error to achieve better causal effect estimates. This illustrates
+how prediction, as described in item one above, is related to causal interventions as described in problem two. 
+
+These concepts are related in the sense that a model which can perfectly predict everything, could also accurately
+predict treatment effects. However, in practice, algorithms that only minimize prediction error are typically insufficient to 
+elucidate causal effect in the presence of confounders. Analogously, models that accurately estimate causal effect 
+(such as regressions) have high prediction error. (Note that this does not illustrate some universal
+tradeoff beteen causal effect and prediction—it is possible that someone will invent an algorithm that can do both.)
+
+However, this distinction is still useful because it can guide problem solvers to methodologies that are likely to
+be helpful as they seek to answer important questions. While it is possible to turn many problems into a machine
+learning problems, it may be more profitable to address some questions with causal analysis or PDE simulation.
+Even the AI giants like Facebook and Google employ Bayesian techniques and AB testing to evaluate new features.
+Similarly engineering firms all over the world use PDEs to simulate products before they are fabricated.
+
+The research presented in this work will focus primarily on problem two and as much as possible attempt to extend results
+to problem three. The goal of this work is to begin the development of a formal methodology for leveraging data to effectively
+quantify uncertainty during to process of creating, assessing and comparing explanatory dynamic models that seek to accurately
+describe real world relationships through time. 
+
+
+
+
+\section{A Survey of Related Work}
+
+
+
+\section{Experimentation}
+
+Each methodology was used to make inferences in three scenarios.
+\begin{enumerate}
+    \item Simulations of models where the underlying system is completely characterized. 
+    (Stochastic differential equations, differential equations with measurement error introduced.)
+    \item Real world data, where the underlying system is well understood by the academic community.
+    (Modeling the evolution of the \href{https://www.sciencedirect.com/science/article/pii/S0045653520316866}{nitrogen}
+    cycle or the impact of interest rates on inflation.)
+    \item Real world data where the true system is unknown. (While there is no ``ground truth''
+    in this scenario, the value here involves assessing how well the methodology provides the
+    researcher with confidence about the validity of results.)
+\end{enumerate}
+
+\bibliographystyle{plain}
+\bibliography{empiricaldynamicinference.bib}
+
+\end{document}
