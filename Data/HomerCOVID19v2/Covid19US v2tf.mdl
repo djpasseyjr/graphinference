@@ -1,0 +1,1333 @@
+{UTF-8}
+********************************************************
+	.Covid19US v2tf
+********************************************************~
+		A model of Covid-19 in the US with endogenous testing, containment measures, and \
+		social distancing
+		
+		Jack Homer, PhD
+		Barrytown, NY
+		
+		March 20, 2020 (ver. 2)
+	|
+
+unit month==
+	1
+	~	Month
+	~		|
+
+********************************************************
+	.Active
+********************************************************~
+		Active equations
+	|
+
+Ability of ventilator to reduce fatality=
+	0.5
+	~	dmnl [0.25,0.75,0.05]
+	~	V1: 0.4
+	|
+
+Adult ventilator capacity=
+	120000
+	~	popn [0,300000,10000]
+	~	60k active + some frac of 100k storage
+	|
+
+Assessment time for containment=
+	3
+	~	months [0,12,0.5]
+	~		|
+
+Avg time on ventilator=
+	0.5
+	~	months [0,300000,10000]
+	~		|
+
+Basic reproduction number=
+	ZIDZ(New infections,Infected) * (Incubation period+Time to recovery or death)
+	~	dmnl
+	~		|
+
+Becoming symptomatic=
+	Infected asympto/Incubation period
+	~	popn/Month
+	~		|
+
+Confirmed current cases=
+	Infected asympto*Testing of asymptos + Infected sympto*Testing of symptos
+	~	popn
+	~		|
+
+Confirmed frac of past infections=
+	XIDZ(Confirmed past cases,Past infections,Testing of symptos)
+	~	dmnl
+	~		|
+
+Confirmed new cases=
+	Confirmed current cases/(Incubation period+Time to recovery or death)
+	~	popn/Month
+	~		|
+
+Confirmed past cases=
+	Dead + Recovered*Testing of symptos
+	~	popn
+	~		|
+
+Contacts per asympto infected=
+	Contacts per asympto no soc dist * (1-Social distancing)
+	~	1/Month
+	~		|
+
+Contacts per asympto no soc dist=
+	120
+	~	1/Month [50,150,5]
+	~	V1: 100
+	|
+
+Contacts per sympto infected=
+	Contacts per sympto no soc dist * (1-Social distancing)
+	~	1/Month
+	~		|
+
+Contacts per sympto no soc dist=
+	Contacts per asympto no soc dist * Reltv contacts per sympto
+	~	1/Month
+	~		|
+
+Containment measures=
+	IF THEN ELSE(Time<Time of vaccine availability, Lookup for containment measures(Recent cases affecting containment\
+		/
+	Recent cases for 50pct containment measures
+	), 0)
+	~	dmnl
+	~		|
+
+Cumul infect from overseas= INTEG (
+	Infections picked up overseas,
+		0)
+	~	popn
+	~		|
+
+Cumulative cases for max testing=
+	45000
+	~	popn [0,100000,5000]
+	~		|
+
+Cumulative confirmed cases=
+	Confirmed current cases + Confirmed past cases
+	~	popn
+	~		|
+
+Cumulative hospitalized= INTEG (
+	Hospital admissions,
+		0)
+	~	popn
+	~		|
+
+Current cases for 50pct social distancing=
+	200000
+	~	popn [0,1e+06,100000]
+	~		|
+
+Dead= INTEG (
+	Fatalities,
+		0)
+	~	popn
+	~		|
+
+Dead frac of confirmed cases=
+	ZIDZ(Dead, Cumulative confirmed cases)
+	~	dmnl
+	~		|
+
+Dead frac of past infections=
+	ZIDZ(Dead, Past infections)
+	~	dmnl
+	~		|
+
+Delay time in social distancing=
+	0.25
+	~	Month [0,1,0.125]
+	~		|
+
+Delay time in testing=
+	0.25
+	~	Month [0,1,0.125]
+	~		|
+
+Effect of vaccine on infection=
+	0.2
+	~	dmnl [0,1,0.05]
+	~		|
+
+Effect of vaccine on infection probability=
+	IF THEN ELSE(Time<Time of vaccine availability, 1, Effect of vaccine on infection)
+	~	dmnl
+	~		|
+
+Fatal frac of sympto=
+	Severe frac of infected sympto*( 1 - Hospitalized frac of severe +  Hospitalized frac of severe\
+		*Frac of hospitalized needing ventilator*(1 - Ability of ventilator to reduce fatality\
+		*Ventilator relative availability))
+	~	dmnl
+	~		|
+
+Fatalities=
+	Recovery or death * Fatal frac of sympto
+	~	popn/Month
+	~		|
+
+Frac of hospitalized needing ventilator=
+	0.2
+	~	dmnl
+	~		|
+
+Hospital admissions=
+	Becoming symptomatic * Severe frac of infected sympto * Hospitalized frac of severe
+	~	popn/Month
+	~		|
+
+Hospital bed capacity=
+	900000
+	~	popn [0,300000,10000]
+	~		|
+
+Hospital bed utilization=
+	MIN(1, Hospitalized/Hospital bed capacity)
+	~	dmnl
+	~		|
+
+Hospitalized=
+	Severe * Hospitalized frac of severe
+	~	popn
+	~		|
+
+Hospitalized frac of severe=
+	1
+	~	dmnl [0,1,0.05]
+	~		|
+
+Hospitalized needing ventilator=
+	Hospitalized * Frac of hospitalized needing ventilator * (Avg time on ventilator/Time to recovery or death\
+		)
+	~	popn
+	~		|
+
+Incubation period=
+	0.25
+	~	months
+	~		|
+
+Infected=
+	Infected asympto + Infected sympto
+	~	popn
+	~		|
+
+Infected asympto= INTEG (
+	New infections-Becoming symptomatic,
+		0)
+	~	popn
+	~		|
+
+Infected sympto= INTEG (
+	Becoming symptomatic-Fatalities-Recoveries,
+		0)
+	~	popn
+	~		|
+
+Infection probability per contact=
+	Infection probability per contact initial * Effect of vaccine on infection probability
+	~	dmnl
+	~		|
+
+Infection probability per contact initial=
+	0.215
+	~	dmnl [0.1,0.3,0.005]
+	~	v1: .22
+	|
+
+Infections picked up overseas=
+	Input series for infections picked up overseas(Time/unit month)
+	~	popn/Month
+	~		|
+
+Infectious contacts=
+	Infected sympto*Contacts per sympto infected + Infected asympto*Infectious frac of asymptos\
+		*Contacts per asympto infected
+	~	popn/Month
+	~		|
+
+Infectious contacts with susceptibles=
+	Infectious contacts * Susceptible fraction of popn * (1-Containment measures)
+	~	popn/Month
+	~		|
+
+Infectious frac of asymptos=
+	0.2
+	~	dmnl [0,100,5]
+	~		|
+
+Input series for infections picked up overseas(
+	[(0,0)-(4,300)],(0,0),(0.5,0),(1.75,220),(3,0),(4,0))
+	~	popn/Month
+	~		|
+
+Lookup for containment measures(
+	[(0,0)-(3,1)],(0,0),(0.5,0.27),(1,0.5),(1.5,0.67),(2,0.8),(2.5,0.87),(3,0.9))
+	~	dmnl
+	~		|
+
+Lookup for social distancing(
+	[(0,0)-(3,1)],(0,0),(0.5,0.27),(1,0.5),(1.5,0.67),(2,0.8),(2.5,0.87),(3,0.9))
+	~	dmnl
+	~		|
+
+Lookup for testing(
+	[(0,0)-(1,1)],(0,0),(0.2,0.3),(0.4,0.55),(0.6,0.75),(0.8,0.9),(1,1))
+	~	dmnl
+	~		|
+
+Max testing of symptos=
+	0.9
+	~	dmnl [0.3,1,0.05]
+	~		|
+
+New infections=
+	Infections picked up overseas + New infections domestic
+	~	popn/Month
+	~		|
+
+New infections domestic=
+	Infectious contacts with susceptibles * Infection probability per contact
+	~	popn/Month
+	~		|
+
+Past infections=
+	Dead+Recovered
+	~	popn
+	~		|
+
+Recent cases affecting containment=
+	SMOOTH(Confirmed new cases,Assessment time for containment) * Assessment time for containment
+	~	popn
+	~		|
+
+Recent cases for 50pct containment measures=
+	400000
+	~	popn [0,2e+06,100000]
+	~	V1: 300000
+	|
+
+Recovered= INTEG (
+	Recoveries,
+		0)
+	~	popn
+	~		|
+
+Recoveries=
+	Recovery or death * (1-Fatal frac of sympto)
+	~	popn/Month
+	~		|
+
+Recovery or death=
+	Infected sympto/Time to recovery or death
+	~	popn/Month
+	~		|
+
+Reltv contacts per sympto=
+	0.5
+	~	dmnl [0,1,0.05]
+	~		|
+
+Reltv testing of asymptos=
+	0.15
+	~	dmnl [0,1,0.05]
+	~		|
+
+Severe=
+	Infected sympto * Severe frac of infected sympto
+	~	popn
+	~		|
+
+Severe frac of infected sympto=
+	0.145
+	~	dmnl [0,0.3,0.005]
+	~		|
+
+Social distancing=
+	Lookup for social distancing(SMOOTH(Confirmed current cases/Current cases for 50pct social distancing\
+		,Delay time in social distancing))
+	~	dmnl
+	~		|
+
+Susceptible= INTEG (
+	-New infections,
+		Total popn initial)
+	~	popn
+	~		|
+
+Susceptible fraction of popn=
+	Susceptible/Total popn
+	~	dmnl
+	~		|
+
+Testing of asymptos=
+	Reltv testing of asymptos * Testing of symptos
+	~	dmnl
+	~		|
+
+Testing of symptos=
+	Testing of symptos initial + (Max testing of symptos - Testing of symptos initial)*Lookup for testing\
+		(SMOOTHI(Cumulative confirmed cases
+	/Cumulative cases for max testing,Delay time in testing, 0))
+	~	dmnl
+	~		|
+
+Testing of symptos initial=
+	0.18
+	~	dmnl [0,0.4,0.01]
+	~	V1: 0.4
+	|
+
+Time of vaccine availability=
+	15
+	~	Month [0,24,1]
+	~		|
+
+Time to recovery or death=
+	0.25
+	~	months
+	~		|
+
+Total popn=
+	Total popn initial - Dead
+	~	popn
+	~		|
+
+Total popn initial=
+	3.3e+08
+	~	popn
+	~		|
+
+Ventilator relative availability=
+	MIN(1, XIDZ(Adult ventilator capacity,Hospitalized needing ventilator,1))
+	~	dmnl
+	~		|
+
+Ventilator utilization=
+	MIN(1, Hospitalized needing ventilator/Adult ventilator capacity)
+	~	dmnl
+	~		|
+
+********************************************************
+	.Control
+********************************************************~
+		Simulation Control Parameters
+	|
+
+FINAL TIME  = 24
+	~	Month
+	~	The final time for the simulation.
+	|
+
+INITIAL TIME  = 0
+	~	Month
+	~	The initial time for the simulation.
+	|
+
+SAVEPER  = 
+        TIME STEP 
+	~	Month [0,?]
+	~	The frequency with which output is stored.
+	|
+
+TIME STEP  = 0.125
+	~	Month [0,?]
+	~	The time step for the simulation.
+	|
+
+********************************************************
+	.Hist
+********************************************************~
+		Historical data
+	|
+
+Cumul confirmed cases data:RAW::=
+	GET XLS DATA('Covid19US data.xlsx','Data','c','d3')
+	~	popn
+	~		|
+
+Dead data:RAW::=
+	GET XLS DATA('Covid19US data.xlsx','Data','c','e3')
+	~	popn
+	~		|
+
+Dead frac of confirmed cases data:RAW::=
+	X IF MISSING(Dead data/Cumul confirmed cases data,:NA:)
+	~	dmnl
+	~		|
+
+\\\---/// Sketch information - do not modify anything except names
+V300  Do not put anything below this section - it will be ignored
+*Main view
+$192-192-192,0,Arial|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,75,0
+10,1,Susceptible,451,413,51,32,3,131,0,0,0,0,0,0,0,0,0,0,0,0
+10,2,Infected asympto,700,414,47,33,3,131,0,0,0,0,0,0,0,0,0,0,0,0
+10,3,Infected sympto,928,414,51,32,3,131,0,0,0,0,0,0,0,0,0,0,0,0
+1,4,6,2,4,0,0,22,0,0,0,-1--1--1,,1|(614,413)|
+1,5,6,1,100,0,0,22,0,0,0,-1--1--1,,1|(532,413)|
+11,6,618,569,413,6,8,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,7,New infections,569,431,53,10,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,8,15,3,4,0,0,22,0,0,0,-1--1--1,,1|(845,413)|
+1,9,15,2,100,0,0,22,0,0,0,-1--1--1,,1|(774,413)|
+10,10,Recovered,1191,421,51,32,3,131,0,0,0,0,0,0,0,0,0,0,0,0
+1,11,13,10,4,0,0,22,0,0,0,-1--1--1,,1|(1095,414)|
+1,12,13,3,100,0,0,22,0,0,0,-1--1--1,,1|(1009,414)|
+11,13,794,1045,414,6,8,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,14,Recoveries,1045,432,42,10,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+11,15,1674,808,413,6,8,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,16,Becoming symptomatic,808,439,47,18,40,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,17,215,7,1,0,0,0,0,128,0,-1--1--1,,1|(440,319)|
+10,18,New infections domestic,481,510,54,18,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,19,Contacts per asympto infected,557,712,62,18,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,20,Contacts per sympto infected,829,629,58,18,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,21,Susceptible fraction of popn,338,535,57,18,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,22,Total popn,248,402,39,10,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,23,1,21,0,0,0,0,0,128,0,-1--1--1,,1|(392,475)|
+1,24,22,21,1,0,0,0,0,128,0,-1--1--1,,1|(269,464)|
+1,25,21,39,1,0,0,0,0,128,0,-1--1--1,,1|(430,589)|
+1,26,18,7,0,0,0,0,0,128,0,-1--1--1,,1|(523,471)|
+10,27,Infection probability per contact,305,625,53,27,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,28,Dead,1157,275,51,32,3,131,0,0,0,0,0,0,0,0,0,0,0,0
+1,29,31,28,4,0,0,22,0,0,0,-1--1--1,,1|(1058,280)|
+1,30,31,3,100,0,0,22,0,0,0,-1--1--1,,1|(928,280)|
+11,31,772,1005,280,6,8,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,32,Fatalities,1005,298,34,10,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,33,Adult ventilator capacity,817,59,54,18,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-0-0,0,0,0,0,0,0
+10,34,Ability of ventilator to reduce fatality,1053,152,66,18,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-0-0,0,0,0,0,0,0
+10,35,Ventilator relative availability,924,113,64,18,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,36,33,35,0,0,0,0,0,128,0,-1--1--1,,1|(863,82)|
+1,37,34,54,1,0,0,0,0,128,0,-1--1--1,,1|(1055,221)|
+1,38,27,18,1,0,0,0,0,128,0,-1--1--1,,1|(403,575)|
+10,39,Infectious contacts with susceptibles,535,619,67,18,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,40,39,18,0,0,0,0,0,128,0,-1--1--1,,1|(511,570)|
+10,41,Incubation period,876,518,37,18,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-0-0,0,0,0,0,0,0
+1,42,41,16,1,0,0,0,0,128,0,-1--1--1,,1|(812,463)|
+10,43,Frac of hospitalized needing ventilator,845,199,72,18,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-0-0,0,0,0,0,0,0
+10,44,Time,291,104,29,10,8,2,0,3,-1,0,0,0,64-128-128,0-0-0,|12||64-128-128,0,0,0,0,0,0
+10,45,Total popn initial,218,321,59,10,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-0-0,0,0,0,0,0,0
+10,46,Dead,115,386,31,10,8,2,0,3,-1,0,0,0,64-128-128,0-0-0,|12||64-128-128,0,0,0,0,0,0
+1,47,46,22,0,0,0,0,0,128,0,-1--1--1,,1|(170,392)|
+1,48,45,22,0,0,0,0,0,128,0,-1--1--1,,1|(230,354)|
+1,49,35,54,1,0,0,0,0,128,0,-1--1--1,,1|(938,173)|
+1,50,45,1,0,0,0,0,0,64,1,-1--1--1,,1|(314,358)|
+1,51,2,16,1,0,0,0,0,128,0,-1--1--1,,1|(735,464)|
+10,52,Time to recovery or death,1277,494,61,18,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-0-0,0,0,0,0,0,0
+1,53,52,55,0,0,0,0,0,128,0,-1--1--1,,1|(1197,493)|
+10,54,Fatal frac of sympto,1027,360,49,20,8,131,0,0,0,0,0,0,0,0,0,0,0,0
+10,55,Recovery or death,1122,493,44,18,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,56,3,55,1,0,0,0,0,128,0,-1--1--1,,1|(1013,467)|
+1,57,54,14,0,0,0,0,0,128,0,-1--1--1,,1|(1035,394)|
+1,58,54,32,0,0,0,0,0,128,0,-1--1--1,,1|(1016,330)|
+1,59,55,14,0,0,0,0,0,128,0,-1--1--1,,1|(1084,462)|
+1,60,55,32,1,0,0,0,0,128,0,-1--1--1,,1|(1084,389)|
+1,61,43,54,1,0,0,0,0,128,0,-1--1--1,,1|(896,256)|
+10,62,Hospitalized needing ventilator,640,190,65,18,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,63,43,62,0,0,0,0,0,128,0,-1--1--1,,1|(745,194)|
+1,64,62,35,0,0,0,0,0,128,0,-1--1--1,,1|(775,153)|
+10,65,Infected,792,359,29,10,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,66,2,65,0,0,0,0,0,128,0,-1--1--1,,1|(755,381)|
+1,67,3,65,0,0,0,0,0,128,0,-1--1--1,,1|(852,384)|
+10,68,Current cases for 50pct social distancing,811,994,63,27,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-0-0,0,0,0,0,0,0
+10,69,Confirmed current cases,531,944,54,18,8,2,0,3,-1,0,0,0,64-128-128,0-0-0,|12||64-128-128,0,0,0,0,0,0
+10,70,Social distancing,658,854,38,18,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,71,44,215,0,0,0,0,0,128,0,-1--1--1,,1|(267,156)|
+10,72,Infectious contacts,700,568,35,18,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,73,2,72,0,0,0,0,0,128,0,-1--1--1,,1|(700,491)|
+1,74,3,72,0,0,0,0,0,128,0,-1--1--1,,1|(809,494)|
+1,75,20,72,0,0,0,0,0,128,0,-1--1--1,,1|(769,600)|
+1,76,19,72,0,0,0,0,0,128,0,-1--1--1,,1|(623,644)|
+1,77,72,39,0,0,0,0,0,128,0,-1--1--1,,1|(635,587)|
+10,78,Contacts per asympto no soc dist,523,820,73,18,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-0-0,0,0,0,0,0,0
+10,79,Contacts per sympto no soc dist,731,698,68,18,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,80,79,20,0,0,0,0,0,128,0,-1--1--1,,1|(773,667)|
+1,81,78,19,0,0,0,0,0,128,0,-1--1--1,,1|(537,772)|
+10,82,Confirmed current cases,979,576,49,18,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,83,3,82,1,0,0,0,2,128,0,-1--1--1,|12||0-0-0,1|(965,493)|
+1,84,2,82,1,0,0,0,2,128,0,-1--1--1,|12||0-0-0,1|(820,560)|
+10,85,Testing of asymptos,950,669,42,23,8,131,0,0,-1,0,0,0,0,0,0,0,0,0
+1,86,85,82,0,0,0,0,0,128,0,-1--1--1,,1|(962,626)|
+1,87,141,82,0,0,0,0,0,128,0,-1--1--1,,1|(1023,658)|
+10,88,Dead frac of past infections,1329,184,64,18,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,89,Past infections,1303,374,53,10,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,90,10,89,0,0,0,0,0,128,0,-1--1--1,,1|(1254,394)|
+1,91,28,89,0,0,0,0,0,128,0,-1--1--1,,1|(1240,331)|
+1,92,28,88,0,0,0,0,0,128,0,-1--1--1,,1|(1244,228)|
+1,93,89,88,0,0,0,0,0,128,0,-1--1--1,,1|(1314,289)|
+10,94,Lookup for social distancing,813,912,63,18,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||0-0-255,0,0,0,0,0,0
+1,95,68,70,0,0,0,0,0,128,0,-1--1--1,,1|(734,924)|
+1,96,94,70,0,0,0,0,0,128,0,-1--1--1,,1|(737,883)|
+10,97,Effect of vaccine on infection probability,147,627,71,18,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,98,Time,254,691,29,10,8,2,0,3,-1,0,0,0,64-128-128,0-0-0,|12||64-128-128,0,0,0,0,0,0
+10,99,Infection probability per contact initial,156,518,70,18,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-0-0,0,0,0,0,0,0
+1,100,99,27,1,0,0,0,0,128,0,-1--1--1,,1|(237,561)|
+1,101,97,27,1,0,0,0,0,128,0,-1--1--1,,1|(248,609)|
+10,102,Reltv contacts per sympto,706,770,51,18,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-0-0,0,0,0,0,0,0
+1,103,78,79,1,0,0,0,0,128,0,-1--1--1,,1|(607,753)|
+1,104,102,79,0,0,0,0,0,128,0,-1--1--1,,1|(715,740)|
+1,105,70,20,1,0,0,0,0,128,0,-1--1--1,,1|(781,775)|
+1,106,70,19,1,0,0,0,0,128,0,-1--1--1,,1|(569,746)|
+10,107,Cumulative confirmed cases,1410,615,61,18,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,108,Confirmed past cases,1423,470,57,18,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,109,10,108,0,0,0,0,0,128,0,-1--1--1,,1|(1297,442)|
+1,110,28,108,1,0,0,0,0,128,0,-1--1--1,,1|(1369,363)|
+1,111,108,107,1,0,0,0,0,128,0,-1--1--1,,1|(1435,533)|
+1,112,82,107,0,0,0,0,0,128,0,-1--1--1,,1|(1181,593)|
+1,113,141,108,1,0,0,0,0,128,0,-1--1--1,,1|(1264,619)|
+10,114,Dead frac of confirmed cases,1533,421,61,18,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,115,28,114,1,0,0,0,0,128,0,-1--1--1,,1|(1333,308)|
+1,116,107,114,1,0,0,0,0,128,0,-1--1--1,,1|(1512,546)|
+10,117,Hospitalized frac of severe,1203,145,61,18,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-0-0,0,0,0,0,0,0
+10,118,Hospitalized,763,255,45,10,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,119,3,176,0,0,0,0,0,128,0,-1--1--1,,1|(873,364)|
+1,120,117,118,1,0,0,0,0,128,0,-1--1--1,,1|(992,220)|
+1,121,118,62,1,0,0,0,0,128,0,-1--1--1,,1|(699,228)|
+1,122,117,54,0,0,0,0,0,128,0,-1--1--1,,1|(1120,246)|
+12,123,2100222,1831,943,187,176,3,188,0,0,1,0,0,0,0,0,0,0,0,0
+Dead
+12,124,1772926,2222,575,187,176,3,188,0,0,1,0,0,0,0,0,0,0,0,0
+Cumulative_confirmed_cases
+12,125,1380570,1832,216,187,176,3,188,0,0,1,0,0,0,0,0,0,0,0,0
+Infected
+12,126,1118954,1834,579,187,176,3,188,0,0,1,0,0,0,0,0,0,0,0,0
+Social_distancing
+12,127,2691214,2228,943,187,176,3,188,0,0,1,0,0,0,0,0,0,0,0,0
+Dead_frac_of_confirmed_cases
+12,128,2887666,1444,943,187,176,3,188,0,0,1,0,0,0,0,0,0,0,0,0
+Containment_measures
+12,129,6554978,2225,214,187,176,3,188,0,0,1,0,0,0,0,0,0,0,0,0
+Testing_of_symptomatics
+10,130,Basic reproduction number,125,986,69,18,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,131,New infections,70,1080,40,18,8,2,0,3,-1,0,0,0,64-128-128,0-0-0,|12||64-128-128,0,0,0,0,0,0
+10,132,Infected,160,1066,38,10,8,2,0,3,-1,0,0,0,64-128-128,0-0-0,|12||64-128-128,0,0,0,0,0,0
+1,133,132,130,0,0,0,0,0,128,0,-1--1--1,,1|(146,1036)|
+1,134,131,130,0,0,0,0,0,128,0,-1--1--1,,1|(93,1039)|
+10,135,Incubation period,62,919,42,18,8,2,0,3,-1,0,0,0,64-128-128,0-0-0,|12||64-128-128,0,0,0,0,0,0
+10,136,Time to recovery or death,222,914,66,18,8,2,0,3,-1,0,0,0,64-128-128,0-0-0,|12||64-128-128,0,0,0,0,0,0
+1,137,136,130,0,0,0,0,0,128,0,-1--1--1,,1|(179,945)|
+1,138,135,130,0,0,0,0,0,128,0,-1--1--1,,1|(88,947)|
+10,139,Reltv testing of asymptos,897,756,54,18,8,3,0,2,-1,0,0,0,64-128-128,0-0-0,|12||255-0-0,0,0,0,0,0,0
+1,140,139,85,1,0,0,0,0,128,0,-1--1--1,,1|(913,711)|
+10,141,Testing of symptos,1065,733,47,23,8,131,0,0,0,0,0,0,0,0,0,0,0,0
+1,142,141,85,1,0,0,0,0,128,0,-1--1--1,,1|(998,711)|
+1,143,69,70,0,0,0,0,2,129,0,-1--1--1,|12||0-0-0,1|(588,903)|
+10,144,Ventilator utilization,724,113,35,18,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,145,33,144,0,0,0,0,0,128,0,-1--1--1,,1|(776,82)|
+1,146,62,144,0,0,0,0,0,128,0,-1--1--1,,1|(676,156)|
+10,147,Infectious frac of asymptos,617,511,59,18,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-0-0,0,0,0,0,0,0
+1,148,147,72,0,0,0,0,0,128,0,-1--1--1,,1|(652,535)|
+10,149,Delay time in social distancing,668,980,61,18,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-0-0,0,0,0,0,0,0
+1,150,149,70,0,0,0,0,0,128,0,-1--1--1,,1|(663,923)|
+1,151,107,141,1,0,0,0,2,129,0,-1--1--1,|12||0-0-0,1|(1230,700)|
+10,152,Cumulative cases for max testing,1001,894,65,18,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-0-0,0,0,0,0,0,0
+1,153,152,141,0,0,0,0,0,128,0,-1--1--1,,1|(1028,822)|
+10,154,Delay time in testing,903,858,48,18,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-0-0,0,0,0,0,0,0
+1,155,154,141,0,0,0,0,0,128,0,-1--1--1,,1|(974,802)|
+10,156,Containment measures,382,706,47,18,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,157,156,39,1,0,0,0,0,128,0,-1--1--1,,1|(445,654)|
+10,158,Recent cases for 50pct containment measures,234,810,67,27,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-0-0,0,0,0,0,0,0
+10,159,Assessment time for containment,458,1028,64,18,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-0-0,0,0,0,0,0,0
+10,160,Lookup for containment measures,354,856,45,27,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||0-0-255,0,0,0,0,0,0
+1,161,158,156,0,0,0,0,0,128,0,-1--1--1,,1|(308,757)|
+1,162,160,156,0,0,0,0,0,128,0,-1--1--1,,1|(367,783)|
+10,163,Confirmed new cases,1113,542,56,18,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,164,82,163,0,0,0,0,0,128,0,-1--1--1,,1|(1035,561)|
+1,165,52,163,1,0,0,0,0,128,0,-1--1--1,,1|(1203,536)|
+1,166,41,163,0,0,0,0,0,128,0,-1--1--1,,1|(978,527)|
+10,167,Confirmed new cases,307,1037,60,18,8,2,0,3,-1,0,0,0,64-128-128,0-0-0,|12||64-128-128,0,0,0,0,0,0
+1,168,98,97,1,0,0,0,0,128,0,-1--1--1,,1|(216,674)|
+10,169,Time of vaccine availability,177,742,58,18,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-0-0,0,0,0,0,0,0
+10,170,Effect of vaccine on infection,72,702,60,18,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-0-0,0,0,0,0,0,0
+1,171,170,97,0,0,0,0,0,128,0,-1--1--1,,1|(104,669)|
+1,172,169,97,0,0,0,0,0,128,0,-1--1--1,,1|(163,691)|
+1,173,98,156,0,0,0,0,0,128,0,-1--1--1,,1|(302,696)|
+1,174,169,156,0,0,0,0,0,128,0,-1--1--1,,1|(277,724)|
+10,175,Severe frac of infected sympto,643,325,58,18,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-0-0,0,0,0,0,0,0
+10,176,Severe,833,327,27,10,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,177,175,176,1,0,0,0,0,128,0,-1--1--1,,1|(741,310)|
+1,178,176,118,0,0,0,0,0,128,0,-1--1--1,,1|(802,295)|
+1,179,175,54,1,0,0,0,0,128,0,-1--1--1,,1|(875,297)|
+10,180,Severe frac of infected sympto,1492,166,62,18,8,2,0,3,-1,0,0,0,64-128-128,0-0-0,|12||255-0-0,0,0,0,0,0,0
+10,181,Avg time on ventilator,612,75,44,18,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-0-0,0,0,0,0,0,0
+1,182,181,62,0,0,0,0,0,128,0,-1--1--1,,1|(623,125)|
+10,183,Time to recovery or death,530,128,66,18,8,2,0,3,-1,0,0,0,64-128-128,0-0-0,|12||255-0-0,0,0,0,0,0,0
+1,184,183,62,0,0,0,0,0,128,0,-1--1--1,,1|(578,155)|
+10,185,Hospital bed capacity,493,204,47,18,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-0-0,0,0,0,0,0,0
+10,186,Hospital bed utilization,624,260,47,18,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,187,118,186,0,0,0,0,0,128,0,-1--1--1,,1|(701,256)|
+1,188,185,186,0,0,0,0,0,128,0,-1--1--1,,1|(551,229)|
+10,189,Cumulative hospitalized,1492,84,51,32,3,131,0,0,0,0,0,0,0,0,0,0,0,0
+12,190,48,1307,79,10,8,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,191,193,189,4,0,0,22,0,0,0,-1--1--1,,1|(1406,79)|
+1,192,193,190,100,0,0,22,0,0,0,-1--1--1,,1|(1338,79)|
+11,193,48,1366,79,6,8,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,194,Hospital admissions,1366,105,43,18,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,195,Becoming symptomatic,1174,59,52,18,8,2,0,3,-1,0,0,0,64-128-128,0-0-0,|12||64-128-128,0,0,0,0,0,0
+1,196,195,194,0,0,0,0,0,128,0,-1--1--1,,1|(1267,80)|
+1,197,180,194,0,0,0,0,0,128,0,-1--1--1,,1|(1435,138)|
+1,198,117,194,0,0,0,0,0,128,0,-1--1--1,,1|(1286,124)|
+10,199,Confirmed frac of past infections,1484,294,64,18,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,200,108,199,0,0,0,0,0,128,0,-1--1--1,,1|(1450,388)|
+1,201,89,199,0,0,0,0,0,128,0,-1--1--1,,1|(1377,340)|
+10,202,Testing of symptos,1540,227,41,18,8,2,0,3,-1,0,0,0,64-128-128,0-0-0,|12||64-128-128,0,0,0,0,0,0
+1,203,202,199,1,0,0,0,0,128,0,-1--1--1,,1|(1524,257)|
+10,204,Testing of symptos initial,1172,902,52,18,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-0-0,0,0,0,0,0,0
+10,205,Max testing of symptos,1079,949,51,18,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-0-0,0,0,0,0,0,0
+1,206,205,141,0,0,0,0,0,128,0,-1--1--1,,1|(1072,850)|
+1,207,204,141,0,0,0,0,0,128,0,-1--1--1,,1|(1123,825)|
+10,208,Cumul infect from overseas,368,202,51,32,3,131,0,0,0,0,0,0,0,0,0,0,0,0
+12,209,48,155,205,10,8,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,210,214,209,100,0,0,22,0,0,0,-1--1--1,,1|(197,203)|
+1,211,214,208,4,0,0,22,0,0,0,-1--1--1,,1|(279,203)|
+10,212,Input series for infections picked up overseas,153,100,73,27,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-0-0,0,0,0,0,0,0
+1,213,212,215,1,0,0,0,0,128,0,-1--1--1,,1|(178,167)|
+11,214,1740,236,203,6,8,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,215,Infections picked up overseas,236,229,61,18,40,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,216,Lookup for testing,1180,813,40,18,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||0-0-255,0,0,0,0,0,0
+1,217,216,141,0,0,0,0,0,128,0,-1--1--1,,1|(1132,779)|
+10,218,Recent cases affecting containment,400,929,50,27,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,219,159,218,0,0,0,0,0,128,0,-1--1--1,,1|(435,988)|
+1,220,167,218,0,0,0,0,0,128,0,-1--1--1,,1|(344,992)|
+1,221,218,156,1,0,0,0,0,128,0,-1--1--1,,1|(418,830)|
+12,222,0,453,3,403,22,8,135,0,18,-1,0,0,0,-1--1--1,0-0-0,|0|B|0-128-0,0,0,0,0,0,0
+A model of Covid-19 in the US with endogenous testing, containment measures, and social distancing
+12,223,0,291,42,215,20,8,135,0,2,-1,0,0,0,-1--1--1,0-0-0,|0||0-128-0,0,0,0,0,0,0
+Jack Homer, PhD, March 20, 2020 v2, via metasd.com
+10,224,unit month,236,265,37,10,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,225,224,215,0,0,0,0,0,64,0,-1--1--1,,1|(236,258)|
+\\\---/// Sketch information - do not modify anything except names
+V300  Do not put anything below this section - it will be ignored
+*Goodness of fit
+$192-192-192,0,Arial|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,75,0
+12,1,2035062,747,272,270,234,3,188,0,0,1,0,0,0,0,0,0,0,0,0
+Cumul_confirmed_cases_vs_data
+12,2,2295426,747,760,272,228,3,188,0,0,1,0,0,0,0,0,0,0,0,0
+Dead_vs_data
+10,3,Cumul confirmed cases data,146,113,62,18,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||0-0-255,0,0,0,0,0,0
+10,4,Dead data,145,267,39,10,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||0-0-255,0,0,0,0,0,0
+10,5,Dead frac of confirmed cases data,323,169,61,27,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,6,3,5,0,0,0,0,0,128,0,-1--1--1,,1|(225,137)|
+1,7,4,5,0,0,0,0,0,128,0,-1--1--1,,1|(211,229)|
+12,8,6032520,1310,276,272,228,3,188,0,0,1,0,0,0,0,0,0,0,0,0
+Dead_frac_of_cases_vs_data
+12,9,11208116,1317,765,257,200,3,188,0,0,1,0,0,0,0,0,0,0,0,0
+Testing_of_symptomatics_hist
+10,10,Ability of ventilator to reduce fatality,158,890,66,18,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-0-0,0,0,0,0,0,0
+10,11,Contacts per asympto no soc dist,157,592,73,18,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-0-0,0,0,0,0,0,0
+10,12,Infection probability per contact initial,163,491,70,18,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-0-0,0,0,0,0,0,0
+10,13,Reltv contacts per sympto,136,686,51,18,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-0-0,0,0,0,0,0,0
+12,14,4263078,1852,773,235,201,3,188,0,0,1,0,0,0,0,0,0,0,0,0
+Basic_reproduction_number
+10,15,Severe frac of infected sympto,158,782,58,18,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-0-0,0,0,0,0,0,0
+10,16,Cumulative cases for max testing,147,986,85,27,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-0-0,0,0,0,0,0,0
+10,17,Testing of symptos initial,342,893,52,18,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-0-0,0,0,0,0,0,0
+10,18,Max testing of symptos,349,993,51,18,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-0-0,0,0,0,0,0,0
+12,19,2887024,1858,300,235,201,3,188,0,0,1,0,0,0,0,0,0,0,0,0
+Cumul_infections_from_overseas
+///---\\\
+:GRAPH Infections_picked_up_overseas
+:TITLE Infections picked up overseas
+:X-LABEL Months elapsed since 1-1-20
+:SCALE
+:VAR Infections picked up overseas
+:LINE-WIDTH 2
+:VAR Infections picked up overseas
+:DATASET *2
+:LINE-WIDTH 2
+:VAR Infections picked up overseas
+:DATASET *3
+:LINE-WIDTH 2
+:VAR Infections picked up overseas
+:DATASET *4
+:LINE-WIDTH 2
+:VAR Infections picked up overseas
+:DATASET *5
+:LINE-WIDTH 2
+
+:GRAPH Basic_reproduction_number
+:TITLE Basic reproduction number
+:X-LABEL Months elapsed since 1-1-20
+:SCALE
+:VAR Basic reproduction number
+:UNITS  
+:Y-MIN 0
+:Y-MAX 4
+:LINE-WIDTH 2
+:VAR Basic reproduction number
+:DATASET *2
+:LINE-WIDTH 2
+:VAR Basic reproduction number
+:DATASET *3
+:LINE-WIDTH 2
+:VAR Basic reproduction number
+:DATASET *4
+:LINE-WIDTH 2
+:VAR Basic reproduction number
+:DATASET *5
+:LINE-WIDTH 2
+
+:GRAPH Infected
+:TITLE Infected
+:X-LABEL Months elapsed since 1-1-20
+:SCALE
+:VAR Infected
+:LINE-WIDTH 2
+:VAR Infected
+:DATASET *2
+:LINE-WIDTH 2
+:VAR Infected
+:DATASET *3
+:LINE-WIDTH 2
+:VAR Infected
+:DATASET *4
+:LINE-WIDTH 2
+:VAR Infected
+:DATASET *5
+:LINE-WIDTH 2
+
+:GRAPH Symptomatic
+:TITLE Symptomatic
+:X-LABEL Months elapsed since 1-1-20
+:SCALE
+:VAR Infected sympto
+:LINE-WIDTH 2
+:VAR Infected sympto
+:DATASET *2
+:LINE-WIDTH 2
+:VAR Infected sympto
+:DATASET *3
+:LINE-WIDTH 2
+:VAR Infected sympto
+:DATASET *4
+:LINE-WIDTH 2
+:VAR Infected sympto
+:DATASET *5
+:LINE-WIDTH 2
+
+:GRAPH Testing_of_symptomatics
+:TITLE Testing of symptomatics
+:X-LABEL Months elapsed since 1-1-20
+:SCALE
+:VAR Testing of symptos
+:UNITS  
+:Y-MIN 0
+:Y-MAX 1
+:LINE-WIDTH 2
+:VAR Testing of symptos
+:DATASET *2
+:LINE-WIDTH 2
+:VAR Testing of symptos
+:DATASET *3
+:LINE-WIDTH 2
+:VAR Testing of symptos
+:DATASET *4
+:LINE-WIDTH 2
+:VAR Testing of symptos
+:DATASET *5
+:LINE-WIDTH 2
+
+:GRAPH Confirmed_frac_of_past_infections
+:TITLE Confirmed frac of past infections
+:X-LABEL Months elapsed since 1-1-20
+:SCALE
+:VAR Confirmed frac of past infections
+:UNITS  
+:Y-MIN 0
+:Y-MAX 1
+:LINE-WIDTH 2
+:VAR Confirmed frac of past infections
+:DATASET *2
+:LINE-WIDTH 2
+:VAR Confirmed frac of past infections
+:DATASET *3
+:LINE-WIDTH 2
+:VAR Confirmed frac of past infections
+:DATASET *4
+:LINE-WIDTH 2
+:VAR Confirmed frac of past infections
+:DATASET *5
+:LINE-WIDTH 2
+
+:GRAPH Confirmed_current_cases
+:TITLE Confirmed current cases
+:X-LABEL Months elapsed since 1-1-20
+:SCALE
+:VAR Confirmed current cases
+:LINE-WIDTH 2
+:VAR Confirmed current cases
+:DATASET *2
+:LINE-WIDTH 2
+:VAR Confirmed current cases
+:DATASET *3
+:LINE-WIDTH 2
+:VAR Confirmed current cases
+:DATASET *4
+:LINE-WIDTH 2
+:VAR Confirmed current cases
+:DATASET *5
+:LINE-WIDTH 2
+
+:GRAPH Social_distancing
+:TITLE Social distancing
+:X-LABEL Months elapsed since 1-1-20
+:SCALE
+:VAR Social distancing
+:UNITS  
+:Y-MIN 0
+:Y-MAX 1
+:LINE-WIDTH 2
+:VAR Social distancing
+:DATASET *2
+:LINE-WIDTH 2
+:VAR Social distancing
+:DATASET *3
+:LINE-WIDTH 2
+:VAR Social distancing
+:DATASET *4
+:LINE-WIDTH 2
+:VAR Social distancing
+:DATASET *5
+:LINE-WIDTH 2
+
+:GRAPH Containment_measures
+:TITLE Containment measures
+:X-LABEL Months elapsed since 1-1-20
+:SCALE
+:VAR Containment measures
+:UNITS  
+:Y-MIN 0
+:Y-MAX 1
+:LINE-WIDTH 2
+:VAR Containment measures
+:DATASET *2
+:LINE-WIDTH 2
+:VAR Containment measures
+:DATASET *3
+:LINE-WIDTH 2
+:VAR Containment measures
+:DATASET *4
+:LINE-WIDTH 2
+:VAR Containment measures
+:DATASET *5
+:LINE-WIDTH 2
+
+:GRAPH Hospitalized
+:TITLE Hospitalized
+:X-LABEL Months elapsed since 1-1-20
+:SCALE
+:VAR Hospitalized
+:LINE-WIDTH 2
+:VAR Hospitalized
+:DATASET *2
+:LINE-WIDTH 2
+:VAR Hospitalized
+:DATASET *3
+:LINE-WIDTH 2
+:VAR Hospitalized
+:DATASET *4
+:LINE-WIDTH 2
+:VAR Hospitalized
+:DATASET *5
+:LINE-WIDTH 2
+
+:GRAPH Hospital_bed_utilization
+:TITLE Hospital bed utilization by Covid19 pts
+:X-LABEL Months elapsed since 1-1-20
+:SOFT-BOUNDS
+:SCALE
+:VAR Hospital bed utilization
+:UNITS  
+:Y-MAX 0.4
+:LINE-WIDTH 2
+:VAR Hospital bed utilization
+:DATASET *2
+:LINE-WIDTH 2
+:VAR Hospital bed utilization
+:DATASET *3
+:LINE-WIDTH 2
+:VAR Hospital bed utilization
+:DATASET *4
+:LINE-WIDTH 2
+:VAR Hospital bed utilization
+:DATASET *5
+:LINE-WIDTH 2
+
+:GRAPH Hospitalized_needing_ventilator
+:TITLE Hospitalized needing ventilator
+:X-LABEL Months elapsed since 1-1-20
+:SCALE
+:VAR Hospitalized needing ventilator
+:LINE-WIDTH 2
+:VAR Hospitalized needing ventilator
+:DATASET *2
+:LINE-WIDTH 2
+:VAR Hospitalized needing ventilator
+:DATASET *3
+:LINE-WIDTH 2
+:VAR Hospitalized needing ventilator
+:DATASET *4
+:LINE-WIDTH 2
+:VAR Hospitalized needing ventilator
+:DATASET *5
+:LINE-WIDTH 2
+
+:GRAPH Ventilator_relative_availability
+:TITLE Ventilator relative availability
+:X-LABEL Months elapsed since 1-1-20
+:SCALE
+:VAR Ventilator relative availability
+:UNITS  
+:Y-MIN 0
+:Y-MAX 1
+:LINE-WIDTH 2
+:VAR Ventilator relative availability
+:UNITS  
+:DATASET *2
+:LINE-WIDTH 2
+:VAR Ventilator relative availability
+:UNITS  
+:DATASET *3
+:LINE-WIDTH 2
+:VAR Ventilator relative availability
+:UNITS  
+:DATASET *4
+:LINE-WIDTH 2
+:VAR Ventilator relative availability
+:UNITS  
+:DATASET *5
+:LINE-WIDTH 2
+
+:GRAPH Ventilator_utilization
+:TITLE Ventilator utilization by Covid19 pts
+:X-LABEL Months elapsed since 1-1-20
+:SCALE
+:VAR Ventilator utilization
+:UNITS  
+:Y-MIN 0
+:Y-MAX 1
+:LINE-WIDTH 2
+:VAR Ventilator utilization
+:UNITS  
+:DATASET *2
+:LINE-WIDTH 2
+:VAR Ventilator utilization
+:UNITS  
+:DATASET *3
+:LINE-WIDTH 2
+:VAR Ventilator utilization
+:UNITS  
+:DATASET *4
+:LINE-WIDTH 2
+:VAR Ventilator utilization
+:UNITS  
+:DATASET *5
+:LINE-WIDTH 2
+
+:GRAPH Fatal_frac_of_sympto
+:TITLE Fatal frac of sympto
+:X-LABEL Months elapsed since 1-1-20
+:SOFT-BOUNDS
+:SCALE
+:VAR Fatal frac of sympto
+:UNITS  
+:Y-MIN 0
+:Y-MAX 0.04
+:LINE-WIDTH 2
+:VAR Fatal frac of sympto
+:UNITS  
+:DATASET *2
+:LINE-WIDTH 2
+:VAR Fatal frac of sympto
+:UNITS  
+:DATASET *3
+:LINE-WIDTH 2
+:VAR Fatal frac of sympto
+:UNITS  
+:DATASET *4
+:LINE-WIDTH 2
+:VAR Fatal frac of sympto
+:UNITS  
+:DATASET *5
+:LINE-WIDTH 2
+
+:GRAPH Past_infections
+:TITLE Past infections
+:X-LABEL Months elapsed since 1-1-20
+:SCALE
+:VAR Past infections
+:LINE-WIDTH 2
+:VAR Past infections
+:DATASET *2
+:LINE-WIDTH 2
+:VAR Past infections
+:DATASET *3
+:LINE-WIDTH 2
+:VAR Past infections
+:DATASET *4
+:LINE-WIDTH 2
+:VAR Past infections
+:DATASET *5
+:LINE-WIDTH 2
+
+:GRAPH Cumulative_hospitalized
+:TITLE Cumulative hospitalized
+:X-LABEL Months elapsed since 1-1-20
+:SCALE
+:VAR Cumulative hospitalized
+:LINE-WIDTH 2
+:VAR Cumulative hospitalized
+:DATASET *2
+:LINE-WIDTH 2
+:VAR Cumulative hospitalized
+:DATASET *3
+:LINE-WIDTH 2
+:VAR Cumulative hospitalized
+:DATASET *4
+:LINE-WIDTH 2
+:VAR Cumulative hospitalized
+:DATASET *5
+:LINE-WIDTH 2
+
+:GRAPH Cumulative_confirmed_cases
+:TITLE Cumulative confirmed cases
+:X-LABEL Months elapsed since 1-1-20
+:SOFT-BOUNDS
+:SCALE
+:VAR Cumulative confirmed cases
+:Y-MIN 0
+:Y-MAX 8e+06
+:LINE-WIDTH 2
+:VAR Cumulative confirmed cases
+:DATASET *2
+:LINE-WIDTH 2
+:VAR Cumulative confirmed cases
+:DATASET *3
+:LINE-WIDTH 2
+:VAR Cumulative confirmed cases
+:DATASET *4
+:LINE-WIDTH 2
+:VAR Cumulative confirmed cases
+:DATASET *5
+:LINE-WIDTH 2
+
+:GRAPH Cumul_infections_from_overseas
+:TITLE Cumul infections from overseas
+:X-LABEL Months elapsed since 1-1-20
+:SOFT-BOUNDS
+:SCALE
+:VAR Cumul infect from overseas
+:Y-MAX 400
+:LINE-WIDTH 2
+:VAR Cumul infect from overseas
+:DATASET *2
+:LINE-WIDTH 2
+:VAR Cumul infect from overseas
+:DATASET *3
+:LINE-WIDTH 2
+:VAR Cumul infect from overseas
+:DATASET *4
+:LINE-WIDTH 2
+:VAR Cumul infect from overseas
+:DATASET *5
+:LINE-WIDTH 2
+
+:GRAPH Dead
+:TITLE Dead
+:X-LABEL Months elapsed since 1-1-20
+:SOFT-BOUNDS
+:SCALE
+:VAR Dead
+:Y-MIN 0
+:LINE-WIDTH 2
+:VAR Dead
+:DATASET *2
+:LINE-WIDTH 2
+:VAR Dead
+:DATASET *3
+:LINE-WIDTH 2
+:VAR Dead
+:DATASET *4
+:LINE-WIDTH 2
+:VAR Dead
+:DATASET *5
+:LINE-WIDTH 2
+
+:GRAPH Dead_frac_of_confirmed_cases
+:TITLE Dead frac of confirmed cases
+:X-LABEL Months elapsed since 1-1-20
+:SOFT-BOUNDS
+:SCALE
+:VAR Dead frac of confirmed cases
+:UNITS  
+:Y-MIN 0
+:Y-MAX 0.04
+:LINE-WIDTH 2
+:VAR Dead frac of confirmed cases
+:UNITS  
+:DATASET *2
+:LINE-WIDTH 2
+:VAR Dead frac of confirmed cases
+:UNITS  
+:DATASET *3
+:LINE-WIDTH 2
+:VAR Dead frac of confirmed cases
+:UNITS  
+:DATASET *4
+:LINE-WIDTH 2
+:VAR Dead frac of confirmed cases
+:UNITS  
+:DATASET *5
+:LINE-WIDTH 2
+
+:GRAPH Dead_frac_of_past_infections
+:TITLE Dead frac of past infections
+:X-LABEL Months elapsed since 1-1-20
+:SOFT-BOUNDS
+:SCALE
+:VAR Dead frac of past infections
+:UNITS  
+:Y-MIN 0
+:Y-MAX 0.04
+:LINE-WIDTH 2
+:VAR Dead frac of past infections
+:UNITS  
+:DATASET *2
+:LINE-WIDTH 2
+:VAR Dead frac of past infections
+:UNITS  
+:DATASET *3
+:LINE-WIDTH 2
+:VAR Dead frac of past infections
+:UNITS  
+:DATASET *4
+:LINE-WIDTH 2
+:VAR Dead frac of past infections
+:UNITS  
+:DATASET *5
+:LINE-WIDTH 2
+
+:GRAPH Cumul_confirmed_cases_vs_data
+:TITLE Cumul confirmed cases vs data
+:X-LABEL Months elapsed since 1-1-20
+:X-DIV 6
+:X-MIN 0
+:X-MAX 3
+:SCALE
+:VAR Cumulative confirmed cases
+:Y-MIN 0
+:Y-MAX 20000
+:LINE-WIDTH 2
+:VAR Cumulative confirmed cases
+:DATASET *2
+:LINE-WIDTH 2
+:VAR Cumul confirmed cases data
+:LINE-WIDTH 2
+
+:GRAPH Dead_vs_data
+:TITLE Dead vs data
+:X-LABEL Months elapsed since 1-1-20
+:X-DIV 6
+:X-MIN 0
+:X-MAX 3
+:SCALE
+:VAR Dead
+:Y-MIN 0
+:Y-MAX 400
+:LINE-WIDTH 2
+:VAR Dead
+:DATASET *2
+:LINE-WIDTH 2
+:VAR Dead data
+:LINE-WIDTH 2
+
+:GRAPH Dead_frac_of_cases_vs_data
+:TITLE Dead frac of cases vs data
+:X-LABEL Months elapsed since 1-1-20
+:X-DIV 6
+:X-MIN 0
+:X-MAX 3
+:SOFT-BOUNDS
+:SCALE
+:VAR Dead frac of confirmed cases
+:UNITS  
+:Y-MIN 0
+:LINE-WIDTH 2
+:VAR Dead frac of confirmed cases
+:DATASET *2
+:LINE-WIDTH 2
+:VAR Dead frac of confirmed cases data
+:LINE-WIDTH 2
+
+:GRAPH Identified_frac_of_past_infections_hist
+:TITLE Identified frac of past infections hist
+:X-LABEL Months elapsed since 1-1-20
+:X-DIV 6
+:X-MIN 0
+:X-MAX 3
+:SCALE
+:VAR Confirmed frac of past infections
+:UNITS  
+:Y-MIN 0
+:Y-MAX 1
+:LINE-WIDTH 2
+:VAR Confirmed frac of past infections
+:DATASET *2
+:LINE-WIDTH 2
+
+:GRAPH Testing_of_symptomatics_hist
+:TITLE Testing of symptomatics
+:X-LABEL Months elapsed since 1-1-20
+:X-DIV 6
+:X-MIN 0
+:X-MAX 3
+:SCALE
+:VAR Testing of symptos
+:UNITS  
+:Y-MIN 0
+:Y-MAX 1
+:LINE-WIDTH 2
+:VAR Testing of symptos
+:DATASET *2
+:LINE-WIDTH 2
+:L<%^E!@
+1:test.vdfx
+9:test
+22:month,months
+15:0,0,0,0,0,0
+19:75,0
+27:0,
+34:0,
+4:Time
+5:Social distancing
+35:Date
+36:YYYY-MM-DD
+37:2000
+38:1
+39:1
+40:2
+41:0
+42:1
+72:0
+73:0
+76:0
+77:0
+78:0
+79:0
+80:0
+81:0
+24:0
+25:24
+26:24
+75:
+43:
