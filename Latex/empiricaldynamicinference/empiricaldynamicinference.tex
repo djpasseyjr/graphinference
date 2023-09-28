@@ -82,7 +82,67 @@ describe real world relationships through time.
 
 \section{A Survey of Related Work}
 
+    \subsection{Detecting Causality in Complex Ecosystems (Convergent Cross Mapping/Empirical Dynamic Modeling)}
 
+        A 2012 paper that presented a method for identifying causality in non-linear dynamical
+        systems \cite{sugihara2012detecting}. It solves three problems with Granger causality
+        \begin{enumerate}
+            \item Granger causality assumes separable variables, that is, by removing a variable,
+            $X$ from the data, all information about $X$ is lost and not included in another variable
+            \item Granger causality fails to identify weakly coupled variables
+            \item Granger causality cannot distinguish interactions from external forces
+        \end{enumerate}
+
+        It uses a dynamical systems definition of causality, where two time
+        series variables are causally linked if they belong to the same system. (I assume that means 
+        that you can't decompose the system into a smaller system that excludes one of the variables.)
+
+        The paper contains interesting ecology datasets such as a sardine anchovy dataset and 
+        a paramecium one.
+
+    \subsection{Time Series Analysis (Hamilton)}
+
+        Apparently a seminal text \cite{hamilton1994time}. Focuses mainly on autoregressive models.
+        Chapter on Kalman filters. The end of the book discusses concepts like
+        cointegration and heteroskedasticity that could be interesting.
+        \href{http://mayoral.iae-csic.org/timeseries2021/hamilton.pdf}{Link to pdf.}
+
+    \subsection{Time Series Analysis Handbook}
+
+        Notebooks with code on \href{https://phdinds-aim.github.io/time_series_handbook/Preface/Preface.html}{github}.
+        Compiled by PhDs in data science at the Asian Institute of Management in 2020-2023.
+        It has convergent cross mapping and empirical dynamic modeling in it with lots of code and datasets.
+
+    \subsection{From Ordinary Differential Equations to Structural Causal Models: The Deterministic Case}
+        
+        A theoretical work that connects differential equation to Pearlian notions of causality
+        and suggests that structural equation models can describe a differential equation \cite{mooij2013ordinary}.
+
+    \subsection{Causal inference for time series}
+        
+        A nature review paper of the structural causal model methodology \cite{runge2023causal}.
+        \href{https://climateinformaticslab.com/wp-content/uploads/2023/06/Runge_Causal_Inference_for_Time_Series_NREE.pdf}
+        {Link to PDF.}
+
+    \subsection{Recent developments in empirical dynamic modelling}
+
+        Taken from the abstract: ``Recent extensions of EDM to multivariate
+        time series substantially expand the range of applications and mechanistic
+        questions that can be addressed, including detecting causal coupling, tracking
+        changing interactions in real time, leveraging short time series from information shared
+        in coupled variables, modelling dynamically changing stability, scenario exploration, and management
+        applications involving optimal control'' \cite{munch2023recent}.
+
+        This makes me wonder if there is a way to incorporate Bayesian techniques
+        into this approach.
+
+    \subsection{Ecological Modeling from Time-Series Inference: Insight into Dynamics and Stability of Intestinal Microbiota}
+
+        Uses a generalized Lotka-Voltera to model and assess stability of the intestinal mircobiome \cite{stein2013ecological}.
+        
+    \subsection{dynGENIE3: dynamical GENIE3 for the inference of gene networks from time series expression data}
+        Comapres an ML based method for identifying gene regulatory networks with a number of other methods. Is only
+        beaten by Gaussian processes (which is computationally complex) \cite{huynhthu2018dynenie3}.
 
 \section{Experimentation}
 
