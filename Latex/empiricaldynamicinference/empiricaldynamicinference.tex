@@ -11,7 +11,7 @@
 \begin{document}
 \maketitle
 
-\section{Posing the Question}
+\section*{Posing the Question}
 As we seek to understand the world, that is, identify its forms and comprehend the complex web of connections
 that underlies the rich and varying patterns of life, we use models.
 
@@ -22,7 +22,7 @@ It has been the goal of many philosophers, mathematicians and statisticians to f
 cognitive processes. The precise logic of these formalisms enabled us to translate these operations into
 algorithms that leverage the power of modern compute.
 
-\subsection{Three Classes of Problems}
+\subsection*{Three Classes of Problems}
 
 Before proceeding, we make a loose distinction about three classes of problems.
 
@@ -75,17 +75,89 @@ Similarly engineering firms all over the world use PDEs to simulate products bef
 The research presented in this work will focus primarily on problem two and as much as possible attempt to extend results
 to problem three. The goal of this work is to begin the development of a formal methodology for leveraging data to effectively
 quantify uncertainty during to process of creating, assessing and comparing explanatory dynamic models that seek to accurately
-describe real world relationships through time. 
+describe real world relationships through time.
+
+    \subsection*{How to Evaluate Success}
+
+        The problem described above is a near universal problem in the sciences, and whether considered directly or indirectly,
+        it is confronted in many fields of work. There is an extensive suite of methods for studying time series data and
+        drawing conclusions about variable relationships. Yet the kinds of conclusions generated and the assumptions of the
+        techniques vary. In addition, the lack of uncertainty quantification makes many of them ill-suited for scientific debate.
+
+        The primary goal of this work to is to increase our ability to explain and understand reality. This goal rests on the
+        assumption that there is a logic to the world that can be uncovered and understood. Therefore, we evaluate methodologies
+        on the quality of the conclusions that can be drawn from their analyses. This evaluation will include the following:
+
+        \begin{enumerate}
+            \item A discussion of the assumptions made by the method and the difficulty of testing the assumptions.
+            \item Benchmarking the method on datasets that meet its assumptions.
+            \item How well the methodology surrounding the method resolves competing explanations.
+            \item An analysis of the ability of the method to make convincing arguments about the structure of the natural world.
+        \end{enumerate}
+
+\section*{Discussion of Problem 2: Extrapolation}
+
+    \subsection*{Relevance and Importance}
+
+        We'll begin with a few examples of situations where problem 2 is important. For each example, assume that no
+        similar intervention has been observed.
+
+        \begin{itemize}
+            \item (Ecology) How would coral reef growth be affected if the government increased the length of the fishing season?
+            \item (Molecular Biology) What would happen to the cell wall if we inhibited the expression of a particular gene?
+            \item (Economics) How would small businesses be affected if we increased the minimum wage in a particular city?
+            \item (Social Science) How would increasing the number of black teachers affect future income of black students?
+            \item (Systems Biology) What would happen to the interaction between gut microbiome and mood in response to a specific diet?
+        \end{itemize}
+
+        It is important to note that machine learning models are not typically trusted to answer these sorts of questions.
+        This may be because these questions are strictly concerned with out of distribution data and machine learning
+        algorithms have no measure of uncertainty about their predictions. Bayesian models for causal inference estimate
+        causal effect and also provide a measure of how well particular causal question could be answered
+        by the available data. While it may be the case that on average ML models make more accurate predictions, there is no way of 
+        assessing the risk profile of basing policy on the predictions of a particular ML model whereas standard
+        statistical techniques lay bare the assumptions and the uncertainty surrounding their predictions.
 
 
+    \subsection*{Important Concepts}
+
+        \begin{itemize}
+            \item \textbf{State space exploration:} An important concept, especially for non-parametric methods is the degree to 
+            which the trajectory or set of trajectories explores the space. For the problem of extrapolation, we are concerned with
+            an area of the state space that has not been explored, so we are most interested in understanding how much the
+            observed data tells us about the effects of our posed intervention.
+
+            \item \textbf{Incorporating known mechanisms:} Often, we have knowledge about the world that is relevant to
+            extrapolation. For instance, we know that a change in shark populations will not impact ocean salinity, or that
+            a person with a home loan must make payments on that loan or default. The causal inference methodology uses
+            causal graphs to incorporate known mechanisms into their analyses, similarly, physics informed ML builds
+            physical assumptions into the loss function. It is important to remember that a computational model knows far
+            less about the world than the researcher. All it knows is its structure and the data it sees. Incorporating
+            mechanisms into a model ensures that when it makes out of distribution predictions, they will at least
+            satisfy known mechanisms.
+
+            \item \textbf{Causality and dynamics:} The school of Pearlian causal inference has a strong and precise definition of
+            causality and it's practicioners can be eager to cast doubt on alternate formulations-often rightfully so.
+            However, the Pearlian school mainly restricts it's analyses to static data and assumes that the direction and
+            magnitude of causation is independent of system state (Is this really correct?). Many systems are known to
+            exhibit state dependent causal effects and even show the reversal of direction of the effect.
+
+            Additionally, the Pearlian school approaches data with the maxim, ``The causes are not in the data'' illustrating
+            that you must approach analyses with strong causal assumptions in order to correctly uncover causal effects.
+            While this is a good maxim for static data, time series data contains information about the \textbf{sequence of events}
+            which empowers algorithms to make inferences about causes.
+
+            Clearly, in the space of dynamics, we need new definitions of causality to meet our needs.
+         
+        \end{itemize}
 
 
-\section{A Survey of Related Work}
+\section*{A Survey of Related Work}
 
-    \subsection{Detecting Causality in Complex Ecosystems (Convergent Cross Mapping/Empirical Dynamic Modeling)}
+    \subsubsection*{Detecting Causality in Complex Ecosystems (Convergent Cross Mapping/Empirical Dynamic Modeling)}
 
         A 2012 paper that presented a method for identifying causality in non-linear dynamical
-        systems \cite{sugihara2012detecting}. It solves three problems with Granger causality
+        systems \cite{sugihara2012detecting}. It solves three problems with Granger causality: 
         \begin{enumerate}
             \item Granger causality assumes separable variables, that is, by removing a variable,
             $X$ from the data, all information about $X$ is lost and not included in another variable
@@ -100,31 +172,31 @@ describe real world relationships through time.
         The paper contains interesting ecology datasets such as a sardine anchovy dataset and 
         a paramecium one.
 
-    \subsection{Time Series Analysis (Hamilton)}
+    \subsubsection*{Time Series Analysis (Hamilton)}
 
         Apparently a seminal text \cite{hamilton1994time}. Focuses mainly on autoregressive models.
         Chapter on Kalman filters. The end of the book discusses concepts like
         cointegration and heteroskedasticity that could be interesting.
         \href{http://mayoral.iae-csic.org/timeseries2021/hamilton.pdf}{Link to pdf.}
 
-    \subsection{Time Series Analysis Handbook}
+    \subsubsection*{Time Series Analysis Handbook}
 
         Notebooks with code on \href{https://phdinds-aim.github.io/time_series_handbook/Preface/Preface.html}{github}.
         Compiled by PhDs in data science at the Asian Institute of Management in 2020-2023.
         It has convergent cross mapping and empirical dynamic modeling in it with lots of code and datasets.
 
-    \subsection{From Ordinary Differential Equations to Structural Causal Models: The Deterministic Case}
+    \subsubsection*{From Ordinary Differential Equations to Structural Causal Models: The Deterministic Case}
         
         A theoretical work that connects differential equation to Pearlian notions of causality
         and suggests that structural equation models can describe a differential equation \cite{mooij2013ordinary}.
 
-    \subsection{Causal inference for time series}
+    \subsubsection*{Causal inference for time series}
         
         A nature review paper of the structural causal model methodology \cite{runge2023causal}.
         \href{https://climateinformaticslab.com/wp-content/uploads/2023/06/Runge_Causal_Inference_for_Time_Series_NREE.pdf}
         {Link to PDF.}
 
-    \subsection{Recent developments in empirical dynamic modelling}
+    \subsubsection*{Recent developments in empirical dynamic modelling}
 
         Taken from the abstract: ``Recent extensions of EDM to multivariate
         time series substantially expand the range of applications and mechanistic
@@ -136,15 +208,28 @@ describe real world relationships through time.
         This makes me wonder if there is a way to incorporate Bayesian techniques
         into this approach.
 
-    \subsection{Ecological Modeling from Time-Series Inference: Insight into Dynamics and Stability of Intestinal Microbiota}
+    \subsubsection*{Ecological Modeling from Time-Series Inference: Insight into Dynamics and Stability of Intestinal Microbiota}
 
         Uses a generalized Lotka-Voltera to model and assess stability of the intestinal mircobiome \cite{stein2013ecological}.
         
-    \subsection{dynGENIE3: dynamical GENIE3 for the inference of gene networks from time series expression data}
+    \subsubsection*{dynGENIE3: dynamical GENIE3 for the inference of gene networks from time series expression data}
         Comapres an ML based method for identifying gene regulatory networks with a number of other methods. Is only
-        beaten by Gaussian processes (which is computationally complex) \cite{huynhthu2018dynenie3}.
+        beaten by Gaussian processes (which is computationally complex) \cite{huynhthu2018dynenie3}. The paper compares 
+        13 methods in total on a gene regulatory benchmark dataset. They classify the methods into five categories:
+        
+        \begin{enumerate}
+            \item Tree Ensembles
+            \item Mutual information
+            \item Dynamic Bayesian networks
+            \item ODEs
+            \item Non-linear Dynamical Systems
+            \item Granger Causality
+        \end{enumerate}
 
-\section{Experimentation}
+        It would be very interesting to learn more about each of these classes of methods.
+
+
+\section*{Experimentation}
 
 Each methodology was used to make inferences in three scenarios.
 \begin{enumerate}
@@ -157,6 +242,7 @@ Each methodology was used to make inferences in three scenarios.
     in this scenario, the value here involves assessing how well the methodology provides the
     researcher with confidence about the validity of results.)
 \end{enumerate}
+
 
 \bibliographystyle{plain}
 \bibliography{empiricaldynamicinference.bib}
