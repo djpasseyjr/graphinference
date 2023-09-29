@@ -12,42 +12,55 @@
 \maketitle
 
 \section*{Posing the Question}
-As we seek to understand the world, that is, identify its forms and comprehend the complex web of connections
-that underlies the rich and varying patterns of life, we use models.
+As we seek to understand the world, identify its forms and comprehend the complex web of connections
+that underlies the rich and varying patterns in life, we use models.
 
 Most often, these models are efficient mental constructs that we can call up in our minds in order to simulate,
-intervene and make predictions about the systems in which we live.
+intervene and make predictions, conscious or unconscious, about the systems in which we live.
 
-It has been the goal of many philosophers, mathematicians and statisticians to formalize these natural
-cognitive processes. The precise logic of these formalisms enabled us to translate these operations into
-algorithms that leverage the power of modern compute.
+However, it is the goal of many philosophers, mathematicians and statisticians to formalize these
+normative cognitive processes \cite{woodard2021causation}. By decomposing the mechanisms of cognitive processes into
+distinct operations and developing logical constructs and algebras, we gain insight into intelligence
+and sometimes develop inferential operations that, in certain context, are more effective than those
+of our own minds. Furthermore, the precise logic of these operations and formalisms enables us to translate
+them into algorithms that leverage modern compute. These algorithms augment our ability to use observations
+to inform decisions and hopefully improve the wellbeing of life on our planet.
+
+Setting aside the issue of how these formalisms are applied, we concern ourselves here with the formalisms
+themselves.
 
 \subsection*{Three Classes of Problems}
 
 Before proceeding, we make a loose distinction about three classes of problems.
 
 \begin{enumerate}
-    \item There is a class of problems (and accompanying formal models)
-    that seek to investigate the question, ``holding the system (or data generating process) constant, how can I
-    leverage past observations to predict what will happen next?'' Some examples of this are recommender
+    \item \textbf{Class 1:} \textit{Holding the system (or data generating process) constant, how can I
+    leverage past observations to predict what will happen next?}
+    
+    Some examples of this are recommender
     systems, classification problems, time series forecasting, or text completion. Many of the formal
     models used to solve this class of problem fall under the umbrella of machine learning but some, 
     such as probabilistic programming models, do not.
 
-    \item A second class of problems seeks to investigate the question, ``holding the system constant, how will
-    it respond to a previously unobserved intervention?''. This problem occurs when evaluating the effects of proposed
+    \item \textbf{Class 2:} \textit{Holding the system constant, how will
+    it respond to a previously unobserved intervention?}
+    
+    This problem occurs when evaluating the effects of proposed
     government policies, estimating the impact of different pharmaceuticals on the population, or understanding how
     to intervene in an ecosystem in order to maintain the survival of a species. The methodologies for studying
     this class of problem include causal inference, system dynamics, structural equation models and generalized regression.
 
-    \item The third class of problems, (likely the most challenging) may have the greatest potential to benefit
-    society. It investigates the question ``how can I change the system, or devise a new system that achieves a
-    desired outcome?''. Some examples of this are product design, invention, questions such as
-    ``how should we structure society?'' or ``can I create an ecosystem that produces more food than conventional
-    farming''. The toolkit for these particular problems remains ill-defined. From the vantage point of this author,
-    it appears that these problems are solved via years of intensive investigation culminating in expert knowledge
-    of \textit{how things work}. This is often the domain of theory, theory that is not always formalized into mathematics,
-    such as Foucault's analysis of the subject and power, the nitrogen cycle, or the macro-deleveraging process.
+    \item \textbf{Class 3} \textit{How can I change the system, or devise a new system that achieves a
+    desired outcome?}
+    
+    This class of problems is likely the most challenging and may have the greatest potential to benefit
+    society. Some examples of this class of problem are product design, invention, questions such as
+    ``Can I engineer an ecosystem of organisms that produces food sustainably?'' or
+    ``how should we structure society?''. The toolkit for these particular problems remains ill-defined.
+    From the vantage point of this author, it appears that these problems are solved via years of intensive
+    investigation culminating in expert knowledge of \textit{how things work}. This is often the domain of
+    theory---theory that is not always formalized into mathematics, such as Foucault's analysis of the subject and power,
+    the nitrogen cycle, or the macro-deleveraging process in economics.
 
 \end{enumerate}
 
@@ -95,7 +108,7 @@ describe real world relationships through time.
             \item An analysis of the ability of the method to make convincing arguments about the structure of the natural world.
         \end{enumerate}
 
-\section*{Discussion of Problem 2: Extrapolation}
+\section*{Discussion of Problem Class 2: Extrapolation}
 
     \subsection*{Relevance and Importance}
 
@@ -104,7 +117,7 @@ describe real world relationships through time.
 
         \begin{itemize}
             \item (Ecology) How would coral reef growth be affected if the government increased the length of the fishing season?
-            \item (Molecular Biology) What would happen to the cell wall if we inhibited the expression of a particular gene?
+            \item (Molecular Biology) How will cell proteins be affected by a growth inhibitory compound \cite{dibernardo2005chemogenomic}? 
             \item (Economics) How would small businesses be affected if we increased the minimum wage in a particular city?
             \item (Social Science) How would increasing the number of black teachers affect future income of black students?
             \item (Systems Biology) What would happen to the interaction between gut microbiome and mood in response to a specific diet?
@@ -147,7 +160,15 @@ describe real world relationships through time.
             While this is a good maxim for static data, time series data contains information about the \textbf{sequence of events}
             which empowers algorithms to make inferences about causes.
 
-            Clearly, in the space of dynamics, we need new definitions of causality to meet our needs.
+            Clearly, in the space of dynamics, we need new definitions of causality to meet our needs. Some helpful info
+            \href{https://stats.stackexchange.com/questions/26300/does-causation-imply-correlation#:~:text=The%20strict%20answer%20is%20%22no,does%20not%20necessarily%20imply%20correlation%22.&text=using%20the%20property%20of%20the,correlation%20is%20equal%20to%20zero.}
+            {on this stack exchange}.
+
+            \item \textbf{Dimensionality Reduction and Invariant Manifolds:} When studying a high dimensional time series
+            it is likely that the space of possible trajectories is much smaller than the size of the hypercube that encloses
+            the observed data. Mapping the system to a smaller space can reduce computation and avoid problems
+            surrounding high dimensional data. Many techniques exist for doing this, diffusion maps, autoencoders
+            \cite{lee2020model, dsilva2018parsimonious}. More investigation is needed to understand how much data they need.
          
         \end{itemize}
 
@@ -228,6 +249,26 @@ describe real world relationships through time.
 
         It would be very interesting to learn more about each of these classes of methods.
 
+    \subsubsection*{Modelling individual and cross-cultural variation in the mapping of emotions to speech prosody}
+        An excellent example of applied bayesian modeling that investigates the connection between human
+        tone and emotion across cultures \cite{vanrijn2023modeling}.
+
+    \subsubsection*{Model reduction of dynamical systems on nonlinear manifolds using deep convolutional autoencoders}
+        Uses autoencoders to project dynamical systems onto non-linear manifolds \cite{lee2020model}.
+        Has a lot of great theory about dimensionality reduction.
+
+    \subsubsection*{Parsimonious representation of nonlinear dynamical systems through manifold learning: A chemotaxis case study}
+        A method for dimensionality reduction that improves an eigenvalue problem with diffusion maps \cite{dsilva2018parsimonious}. Works for
+        stochastic differential equations.
+
+    \subsubsection*{Uncertainty quantification for complex systems with very high dimensional response using Grassmann manifold variations}
+        Investigates the problem of high uncertainty quantification in complex and high dimensional stochastic physics
+        models \cite{giovanis2018uncertainty}. These models have challenges with efficient sampling that can be accelerated with
+        dimensionality reduction.
+
+    \subsection*{How to infer gene networks from expression profiles}
+        An excellent paper that describes each kind of method for inferring
+        connections in gene regulatory networks \cite{bansal2007infer}.
 
 \section*{Experimentation}
 
