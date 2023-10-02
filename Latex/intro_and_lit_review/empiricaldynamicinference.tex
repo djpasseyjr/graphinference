@@ -108,6 +108,31 @@ describe real world relationships through time.
             \item An analysis of the ability of the method to make convincing arguments about the structure of the natural world.
         \end{enumerate}
 
+        \subsubsection*{Experiments}
+
+            We could experiment with each methodology in the following scenarios:
+            \begin{enumerate}
+                \item Simulations of models where the underlying system is completely characterized. 
+                (Stochastic differential equations, differential equations with measurement
+                error introduced.)
+
+                \begin{enumerate}
+                    \item Collect and run existing models. Turn the results into a JSON.
+                    \item Run the models with noise, or make them stochastic somehow
+                    \item Run the models with perturbations -- like system identification
+                    from control theory.
+                \end{enumerate}
+
+                \item Real world data, where the underlying system is well understood by the academic community.
+                (Modeling the evolution of the \href{https://www.sciencedirect.com/science/article/pii/S0045653520316866}{nitrogen}
+                cycle or the impact of interest rates on inflation.)
+
+                \item Real world data where the true system is unknown. (While there is no ``ground truth''
+                in this scenario, the value here involves assessing how well the methodology provides the
+                researcher with confidence about the validity of results.)
+
+            \end{enumerate}
+
 \section*{Discussion of Problem Class 2: Extrapolation}
 
     \subsection*{Relevance and Importance}
@@ -150,7 +175,7 @@ describe real world relationships through time.
             satisfy known mechanisms.
 
             \item \textbf{Causality and dynamics:} The school of Pearlian causal inference has a strong and precise definition of
-            causality and it's practicioners can be eager to cast doubt on alternate formulations-often rightfully so.
+            causality and its practicioners can be eager to cast doubt on alternate formulations---often rightfully so.
             However, the Pearlian school mainly restricts it's analyses to static data and assumes that the direction and
             magnitude of causation is independent of system state (Is this really correct?). Many systems are known to
             exhibit state dependent causal effects and even show the reversal of direction of the effect.
@@ -266,7 +291,7 @@ describe real world relationships through time.
         models \cite{giovanis2018uncertainty}. These models have challenges with efficient sampling that can be accelerated with
         dimensionality reduction.
 
-    \subsection*{How to infer gene networks from expression profiles}
+    \subsubsection*{How to infer gene networks from expression profiles}
         An excellent paper that describes each kind of method for inferring
         connections in gene regulatory networks \cite{bansal2007infer}.
 
@@ -294,28 +319,28 @@ describe real world relationships through time.
         It seems like their real world dataset results sort of match their
         linear model inference results, so that's good.
 
-\section*{Experimentation}
+    \subsubsection*{How to infer gene networks from expression profiles, revisited}
+        A second look at the problem outlined above that includes non-parametric
+        and nonlinear methods \cite{penfold2011infer}.
 
-Each methodology was used to make inferences in three scenarios.
-\begin{enumerate}
-    \item Simulations of models where the underlying system is completely characterized. 
-    (Stochastic differential equations, differential equations with measurement
-    error introduced.)
+    \subsubsection*{DREAM4: Combining Genetic and Dynamic Information to    Identify Biological Networks and Dynamical Models}
+        Good, nonlinear models for gene regulatory benchmarking \cite{greenfield2010dream4}.
 
-    \begin{enumerate}
-        \item Collect and run existing models. Turn the results into a JSON.
-        \item Run the models with noise, or make them stochastic somehow
-        \item Run the models with perturbations -- like system identification
-        from control theory.
-    \end{enumerate}
+    \subsubsection*{Experimental validation of a predicted feedback loop in the multi-oscillator clock of Arabidopsis thaliana}
+        A well studied gene regulatory network \cite{locke2006experimental}.
 
-    \item Real world data, where the underlying system is well understood by the academic community.
-    (Modeling the evolution of the \href{https://www.sciencedirect.com/science/article/pii/S0045653520316866}{nitrogen}
-    cycle or the impact of interest rates on inflation.)
-    \item Real world data where the true system is unknown. (While there is no ``ground truth''
-    in this scenario, the value here involves assessing how well the methodology provides the
-    researcher with confidence about the validity of results.)
-\end{enumerate}
+    \subsubsection*{A Bayesian approach to reconstructing genetic regulatory networks with hidden factors}
+        An example or modeling missing factors for gene regulatory nets with
+        Bayesian models \cite{beal2005bayesian}.
+
+    \subsubsection*{Learning gene regulatory networks from gene expression measurements using non-parametric molecular kinetics}
+        An example of including known mechanisms in the model
+        \cite{aijo2009learning}.
+        
+    \subsubsection*{Causal structure identification in nonlinear dynamical systems}
+        Proposes an interesting dynamic model but I can't find the thesis  anywhere \cite{klemm2008causal}.
+
+        
 
 
 \bibliographystyle{plain}
