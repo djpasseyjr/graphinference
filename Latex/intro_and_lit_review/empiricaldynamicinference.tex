@@ -1,0 +1,291 @@
+\documentclass{article}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{bm}
+\usepackage{hyperref}
+
+\title{Empirical Dynamic Inference: A  methodology for using data to model uncertainty about complex dynamics}
+\author{D.J. Passey}
+
+\begin{document}
+\maketitle
+
+\section*{Posing the Question}
+As we seek to understand the world, identify its forms and comprehend the complex web of connections
+that underlies the rich and varying patterns in life, we use models.
+
+Most often, these models are efficient mental constructs that we can call up in our minds in order to simulate,
+intervene and make predictions, conscious or unconscious, about the systems in which we live.
+
+However, it is the goal of many philosophers, mathematicians and statisticians to formalize these
+normative cognitive processes \cite{woodard2021causation}. By decomposing the mechanisms of cognitive processes into
+distinct operations and developing logical constructs and algebras, we gain insight into intelligence
+and sometimes develop inferential operations that, in certain context, are more effective than those
+of our own minds. Furthermore, the precise logic of these operations and formalisms enables us to translate
+them into algorithms that leverage modern compute. These algorithms augment our ability to use observations
+to inform decisions and hopefully improve the wellbeing of life on our planet.
+
+Setting aside the issue of how these formalisms are applied, we concern ourselves here with the formalisms
+themselves.
+
+\subsection*{Three Classes of Problems}
+
+Before proceeding, we make a loose distinction about three classes of problems.
+
+\begin{enumerate}
+    \item \textbf{Class 1:} \textit{Holding the system (or data generating process) constant, how can I
+    leverage past observations to predict what will happen next?}
+    
+    Some examples of this are recommender
+    systems, classification problems, time series forecasting, or text completion. Many of the formal
+    models used to solve this class of problem fall under the umbrella of machine learning but some, 
+    such as probabilistic programming models, do not.
+
+    \item \textbf{Class 2:} \textit{Holding the system constant, how will
+    it respond to a previously unobserved intervention?}
+    
+    This problem occurs when evaluating the effects of proposed
+    government policies, estimating the impact of different pharmaceuticals on the population, or understanding how
+    to intervene in an ecosystem in order to maintain the survival of a species. The methodologies for studying
+    this class of problem include causal inference, system dynamics, structural equation models and generalized regression.
+
+    \item \textbf{Class 3} \textit{How can I change the system, or devise a new system that achieves a
+    desired outcome?}
+    
+    This class of problems is likely the most challenging and may have the greatest potential to benefit
+    society. Some examples of this class of problem are product design, invention, questions such as
+    ``Can I engineer an ecosystem of organisms that produces food sustainably?'' or
+    ``how should we structure society?''. The toolkit for these particular problems remains ill-defined.
+    From the vantage point of this author, it appears that these problems are solved via years of intensive
+    investigation culminating in expert knowledge of \textit{how things work}. This is often the domain of
+    theory---theory that is not always formalized into mathematics, such as Foucault's analysis of the subject and power,
+    the nitrogen cycle, or the macro-deleveraging process in economics.
+
+\end{enumerate}
+
+At this point, an attentive reader has likely thought of problem areas that span multiple of the above classes, or tools
+that solve multiple problems. It is correct that these problems and their accompanying toolkits are \textit{highly interrelated}.
+Advanced tools from a certain class of problem can lead to advances in another class. For example, DragonNet is a neural
+network designed to estimate treatment effects from observational data  \cite{shi2019adapting}. 
+
+DragonNet also illustrates how the problems themselves are interrelated. The model's loss function optimizes both
+prediction error and treatment assignment error to achieve better causal effect estimates. This illustrates
+how prediction, as described in item one above, is related to causal interventions as described in problem two. 
+
+These concepts are related in the sense that a model which can perfectly predict everything, could also accurately
+predict treatment effects. However, in practice, algorithms that only minimize prediction error are typically insufficient to 
+elucidate causal effect in the presence of confounders. Analogously, models that accurately estimate causal effect 
+(such as regressions) have high prediction error. (Note that this does not illustrate some universal
+tradeoff beteen causal effect and prediction—it is possible that someone will invent an algorithm that can do both.)
+
+However, this distinction is still useful because it can guide problem solvers to methodologies that are likely to
+be helpful as they seek to answer important questions. While it is possible to turn many problems into a machine
+learning problems, it may be more profitable to address some questions with causal analysis or PDE simulation.
+Even the AI giants like Facebook and Google employ Bayesian techniques and AB testing to evaluate new features.
+Similarly engineering firms all over the world use PDEs to simulate products before they are fabricated.
+
+The research presented in this work will focus primarily on problem two and as much as possible attempt to extend results
+to problem three. The goal of this work is to begin the development of a formal methodology for leveraging data to effectively
+quantify uncertainty during to process of creating, assessing and comparing explanatory dynamic models that seek to accurately
+describe real world relationships through time.
+
+    \subsection*{How to Evaluate Success}
+
+        The problem described above is a near universal problem in the sciences, and whether considered directly or indirectly,
+        it is confronted in many fields of work. There is an extensive suite of methods for studying time series data and
+        drawing conclusions about variable relationships. Yet the kinds of conclusions generated and the assumptions of the
+        techniques vary. In addition, the lack of uncertainty quantification makes many of them ill-suited for scientific debate.
+
+        The primary goal of this work to is to increase our ability to explain and understand reality. This goal rests on the
+        assumption that there is a logic to the world that can be uncovered and understood. Therefore, we evaluate methodologies
+        on the quality of the conclusions that can be drawn from their analyses. This evaluation will include the following:
+
+        \begin{enumerate}
+            \item A discussion of the assumptions made by the method and the difficulty of testing the assumptions.
+            \item Benchmarking the method on datasets that meet its assumptions.
+            \item How well the methodology surrounding the method resolves competing explanations.
+            \item An analysis of the ability of the method to make convincing arguments about the structure of the natural world.
+        \end{enumerate}
+
+\section*{Discussion of Problem Class 2: Extrapolation}
+
+    \subsection*{Relevance and Importance}
+
+        We'll begin with a few examples of situations where problem 2 is important. For each example, assume that no
+        similar intervention has been observed.
+
+        \begin{itemize}
+            \item (Ecology) How would coral reef growth be affected if the government increased the length of the fishing season?
+            \item (Molecular Biology) How will cell proteins be affected by a growth inhibitory compound \cite{dibernardo2005chemogenomic}? 
+            \item (Economics) How would small businesses be affected if we increased the minimum wage in a particular city?
+            \item (Social Science) How would increasing the number of black teachers affect future income of black students?
+            \item (Systems Biology) What would happen to the interaction between gut microbiome and mood in response to a specific diet?
+        \end{itemize}
+
+        It is important to note that machine learning models are not typically trusted to answer these sorts of questions.
+        This may be because these questions are strictly concerned with out of distribution data and machine learning
+        algorithms have no measure of uncertainty about their predictions. Bayesian models for causal inference estimate
+        causal effect and also provide a measure of how well particular causal question could be answered
+        by the available data. While it may be the case that on average ML models make more accurate predictions, there is no way of 
+        assessing the risk profile of basing policy on the predictions of a particular ML model whereas standard
+        statistical techniques lay bare the assumptions and the uncertainty surrounding their predictions.
+
+
+    \subsection*{Important Concepts}
+
+        \begin{itemize}
+            \item \textbf{State space exploration:} An important concept, especially for non-parametric methods is the degree to 
+            which the trajectory or set of trajectories explores the space. For the problem of extrapolation, we are concerned with
+            an area of the state space that has not been explored, so we are most interested in understanding how much the
+            observed data tells us about the effects of our posed intervention.
+
+            \item \textbf{Incorporating known mechanisms:} Often, we have knowledge about the world that is relevant to
+            extrapolation. For instance, we know that a change in shark populations will not impact ocean salinity, or that
+            a person with a home loan must make payments on that loan or default. The causal inference methodology uses
+            causal graphs to incorporate known mechanisms into their analyses, similarly, physics informed ML builds
+            physical assumptions into the loss function. It is important to remember that a computational model knows far
+            less about the world than the researcher. All it knows is its structure and the data it sees. Incorporating
+            mechanisms into a model ensures that when it makes out of distribution predictions, they will at least
+            satisfy known mechanisms.
+
+            \item \textbf{Causality and dynamics:} The school of Pearlian causal inference has a strong and precise definition of
+            causality and it's practicioners can be eager to cast doubt on alternate formulations-often rightfully so.
+            However, the Pearlian school mainly restricts it's analyses to static data and assumes that the direction and
+            magnitude of causation is independent of system state (Is this really correct?). Many systems are known to
+            exhibit state dependent causal effects and even show the reversal of direction of the effect.
+
+            Additionally, the Pearlian school approaches data with the maxim, ``The causes are not in the data'' illustrating
+            that you must approach analyses with strong causal assumptions in order to correctly uncover causal effects.
+            While this is a good maxim for static data, time series data contains information about the \textbf{sequence of events}
+            which empowers algorithms to make inferences about causes.
+
+            Clearly, in the space of dynamics, we need new definitions of causality to meet our needs. Some helpful info
+            \href{https://stats.stackexchange.com/questions/26300/does-causation-imply-correlation#:~:text=The%20strict%20answer%20is%20%22no,does%20not%20necessarily%20imply%20correlation%22.&text=using%20the%20property%20of%20the,correlation%20is%20equal%20to%20zero.}
+            {on this stack exchange}.
+
+            \item \textbf{Dimensionality Reduction and Invariant Manifolds:} When studying a high dimensional time series
+            it is likely that the space of possible trajectories is much smaller than the size of the hypercube that encloses
+            the observed data. Mapping the system to a smaller space can reduce computation and avoid problems
+            surrounding high dimensional data. Many techniques exist for doing this, diffusion maps, autoencoders
+            \cite{lee2020model, dsilva2018parsimonious}. More investigation is needed to understand how much data they need.
+         
+        \end{itemize}
+
+
+\section*{A Survey of Related Work}
+
+    \subsubsection*{Detecting Causality in Complex Ecosystems (Convergent Cross Mapping/Empirical Dynamic Modeling)}
+
+        A 2012 paper that presented a method for identifying causality in non-linear dynamical
+        systems \cite{sugihara2012detecting}. It solves three problems with Granger causality: 
+        \begin{enumerate}
+            \item Granger causality assumes separable variables, that is, by removing a variable,
+            $X$ from the data, all information about $X$ is lost and not included in another variable
+            \item Granger causality fails to identify weakly coupled variables
+            \item Granger causality cannot distinguish interactions from external forces
+        \end{enumerate}
+
+        It uses a dynamical systems definition of causality, where two time
+        series variables are causally linked if they belong to the same system. (I assume that means 
+        that you can't decompose the system into a smaller system that excludes one of the variables.)
+
+        The paper contains interesting ecology datasets such as a sardine anchovy dataset and 
+        a paramecium one.
+
+    \subsubsection*{Time Series Analysis (Hamilton)}
+
+        Apparently a seminal text \cite{hamilton1994time}. Focuses mainly on autoregressive models.
+        Chapter on Kalman filters. The end of the book discusses concepts like
+        cointegration and heteroskedasticity that could be interesting.
+        \href{http://mayoral.iae-csic.org/timeseries2021/hamilton.pdf}{Link to pdf.}
+
+    \subsubsection*{Time Series Analysis Handbook}
+
+        Notebooks with code on \href{https://phdinds-aim.github.io/time_series_handbook/Preface/Preface.html}{github}.
+        Compiled by PhDs in data science at the Asian Institute of Management in 2020-2023.
+        It has convergent cross mapping and empirical dynamic modeling in it with lots of code and datasets.
+
+    \subsubsection*{From Ordinary Differential Equations to Structural Causal Models: The Deterministic Case}
+        
+        A theoretical work that connects differential equation to Pearlian notions of causality
+        and suggests that structural equation models can describe a differential equation \cite{mooij2013ordinary}.
+
+    \subsubsection*{Causal inference for time series}
+        
+        A nature review paper of the structural causal model methodology \cite{runge2023causal}.
+        \href{https://climateinformaticslab.com/wp-content/uploads/2023/06/Runge_Causal_Inference_for_Time_Series_NREE.pdf}
+        {Link to PDF.}
+
+    \subsubsection*{Recent developments in empirical dynamic modelling}
+
+        Taken from the abstract: ``Recent extensions of EDM to multivariate
+        time series substantially expand the range of applications and mechanistic
+        questions that can be addressed, including detecting causal coupling, tracking
+        changing interactions in real time, leveraging short time series from information shared
+        in coupled variables, modelling dynamically changing stability, scenario exploration, and management
+        applications involving optimal control'' \cite{munch2023recent}.
+
+        This makes me wonder if there is a way to incorporate Bayesian techniques
+        into this approach.
+
+    \subsubsection*{Ecological Modeling from Time-Series Inference: Insight into Dynamics and Stability of Intestinal Microbiota}
+
+        Uses a generalized Lotka-Voltera to model and assess stability of the intestinal mircobiome \cite{stein2013ecological}.
+        
+    \subsubsection*{dynGENIE3: dynamical GENIE3 for the inference of gene networks from time series expression data}
+        Comapres an ML based method for identifying gene regulatory networks with a number of other methods. Is only
+        beaten by Gaussian processes (which is computationally complex) \cite{huynhthu2018dynenie3}. The paper compares 
+        13 methods in total on a gene regulatory benchmark dataset. They classify the methods into five categories:
+        
+        \begin{enumerate}
+            \item Tree Ensembles
+            \item Mutual information
+            \item Dynamic Bayesian networks
+            \item ODEs
+            \item Non-linear Dynamical Systems
+            \item Granger Causality
+        \end{enumerate}
+
+        It would be very interesting to learn more about each of these classes of methods.
+
+    \subsubsection*{Modelling individual and cross-cultural variation in the mapping of emotions to speech prosody}
+        An excellent example of applied bayesian modeling that investigates the connection between human
+        tone and emotion across cultures \cite{vanrijn2023modeling}.
+
+    \subsubsection*{Model reduction of dynamical systems on nonlinear manifolds using deep convolutional autoencoders}
+        Uses autoencoders to project dynamical systems onto non-linear manifolds \cite{lee2020model}.
+        Has a lot of great theory about dimensionality reduction.
+
+    \subsubsection*{Parsimonious representation of nonlinear dynamical systems through manifold learning: A chemotaxis case study}
+        A method for dimensionality reduction that improves an eigenvalue problem with diffusion maps \cite{dsilva2018parsimonious}. Works for
+        stochastic differential equations.
+
+    \subsubsection*{Uncertainty quantification for complex systems with very high dimensional response using Grassmann manifold variations}
+        Investigates the problem of high uncertainty quantification in complex and high dimensional stochastic physics
+        models \cite{giovanis2018uncertainty}. These models have challenges with efficient sampling that can be accelerated with
+        dimensionality reduction.
+
+    \subsection*{How to infer gene networks from expression profiles}
+        An excellent paper that describes each kind of method for inferring
+        connections in gene regulatory networks \cite{bansal2007infer}.
+
+\section*{Experimentation}
+
+Each methodology was used to make inferences in three scenarios.
+\begin{enumerate}
+    \item Simulations of models where the underlying system is completely characterized. 
+    (Stochastic differential equations, differential equations with measurement error introduced.)
+    \item Real world data, where the underlying system is well understood by the academic community.
+    (Modeling the evolution of the \href{https://www.sciencedirect.com/science/article/pii/S0045653520316866}{nitrogen}
+    cycle or the impact of interest rates on inflation.)
+    \item Real world data where the true system is unknown. (While there is no ``ground truth''
+    in this scenario, the value here involves assessing how well the methodology provides the
+    researcher with confidence about the validity of results.)
+\end{enumerate}
+
+
+\bibliographystyle{plain}
+\bibliography{empiricaldynamicinference.bib}
+
+\end{document}
