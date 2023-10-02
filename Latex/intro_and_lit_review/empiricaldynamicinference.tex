@@ -270,12 +270,45 @@ describe real world relationships through time.
         An excellent paper that describes each kind of method for inferring
         connections in gene regulatory networks \cite{bansal2007infer}.
 
+        Excerpt: \textit{To simulate gene expression data and gene regulation in
+        the form of a network, we use linear ODEs relating the changes in gene
+        transcript concentration to each other and to the external
+        perturbations. Linear ODEs can simulate gene networks as directed signed
+        graphs with realistic dynamics and generate both steady-state and
+        time-series gene expression profiles. Linear ODEs are generic, as any
+        non-linear process can be approximated to a linear process, as long as
+        the system is not far from equilibrium, whereas non-linear processes are
+        all different from each other.}
+        
+        I'm very surprised that the algorithms are only being tested on linear
+        models! Is this actually good enough to make scientific progress? It
+        seems like a real non-liner investigation would be very informative in
+        understanding all of these methods.
+
+        Simply collecting a bunch of non-linear ode models and running
+        simulations, then trying to infer the network seems like a huge
+        contribution.
+        
+        The accuracy of the methods is just terrible too! It's very interesting.
+
+        It seems like their real world dataset results sort of match their
+        linear model inference results, so that's good.
+
 \section*{Experimentation}
 
 Each methodology was used to make inferences in three scenarios.
 \begin{enumerate}
     \item Simulations of models where the underlying system is completely characterized. 
-    (Stochastic differential equations, differential equations with measurement error introduced.)
+    (Stochastic differential equations, differential equations with measurement
+    error introduced.)
+
+    \begin{enumerate}
+        \item Collect and run existing models. Turn the results into a JSON.
+        \item Run the models with noise, or make them stochastic somehow
+        \item Run the models with perturbations -- like system identification
+        from control theory.
+    \end{enumerate}
+
     \item Real world data, where the underlying system is well understood by the academic community.
     (Modeling the evolution of the \href{https://www.sciencedirect.com/science/article/pii/S0045653520316866}{nitrogen}
     cycle or the impact of interest rates on inflation.)
