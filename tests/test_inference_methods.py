@@ -30,8 +30,9 @@ class TestInferenceMethods(unittest.TestCase):
 
     def test_var(self):
         np.random.seed(100)
+        max_lag = 1
         pred_adj = im.vector_autoregression(
-            self.timeseries, np.sum(self.adj))
+            self.timeseries, max_lag)
         np.testing.assert_array_equal(pred_adj, self.adj)
         self.assertTrue(np.all(pred_adj == self.adj))
 
