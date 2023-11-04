@@ -7,7 +7,7 @@ import numpy as np
 class LotkaVoltera(OrdinaryDifferentialEquation):
     """Class for simulating Lotka Voltera dynamics.
 
-    Can be simulated using the parent class simulate method.
+    Can be simulated using the parent class `simulate` method.
     """
 
     def __init__(self, growth_rates: np.ndarray, capacities: np.ndarray,

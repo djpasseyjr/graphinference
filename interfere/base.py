@@ -1,8 +1,12 @@
 from abc import ABC, abstractmethod
-from typing import Any, Dict,  Iterable, Optional, Type
+from typing import Any, Dict, Iterable, Optional, Type
 
 import numpy as np
 from scipy import integrate
+
+# Default range for random number generation.
+DEFAULT_RANGE = generator = np.random.default_rng()
+
 
 class Intervention(ABC):
     """Abstract base class for interventions."""
@@ -20,6 +24,7 @@ class Intervention(ABC):
                 applied.
         """
         raise NotImplementedError
+
 
 class SingleVariableIntervention(Intervention):
     """Class for describing an intervention that only affects one variable.
@@ -63,8 +68,8 @@ class DynamicModel(ABC):
         self,
         initial_condition: np.ndarray,
         time_points: np.ndarray,
-        seed: int,
-        intervention: Optional[Intervention] = None
+        intervention: Optional[Intervention] = None,
+        rng: np.random.mtrand.RandomState = DEFAULT_RANGE
     ) -> np.ndarray:
         """Runs a simulation of the dynamic model.
 
@@ -73,7 +78,6 @@ class DynamicModel(ABC):
                 or the historical conditions of the dynamic model.
             time_points: A (n,) array of the time points where the dynamic 
             model will be simulated.
-            seed: A seed for reproducibility.
             intervention: A function that accepts (1) a vector of the
                 current state of the dynamic model and (2) the current time. It should return a modified state. The function will be used in the
                 following way: 
@@ -94,6 +98,8 @@ class DynamicModel(ABC):
                 the intervention function.
 
                 TODO: Make notation inclusive of time delays.
+            rng: A numpy random state for reproducibility. (Uses numpy's mtrand 
+                random number generator by default.)
 
         Returns:
             X: An (n, m) array containing a realization of the trajectory of 
@@ -110,8 +116,8 @@ class OrdinaryDifferentialEquation(DynamicModel):
         self,
         initial_condition: np.ndarray,
         time_points: np.ndarray,
-        seed: int,
-        intervention: Optional[SingleVariableIntervention] = None
+        intervention: Optional[SingleVariableIntervention] = None,
+        rng: np.random.mtrand.RandomState = DEFAULT_RANGE
     ) -> np.ndarray:
         """
         Runs a simulation of the differential equaltion model.
@@ -120,8 +126,7 @@ class OrdinaryDifferentialEquation(DynamicModel):
             initial_condition: A (m,) array of the initial condition
                 or the historical conditions of the dynamic model.
             time_points: A (n,) array of the time points where the dynamic 
-            model will be simulated.
-            seed: A seed for reproducibility.
+                model will be simulated.
             intervention: A function that accepts (1) a vector of the
                 current state of the dynamic model and (2) the current time. It should return a modified state. The function will be used in the
                 following way: 
@@ -140,6 +145,8 @@ class OrdinaryDifferentialEquation(DynamicModel):
 
                 where x_do is the trajectory of the intervened system and g is 
                 the intervention function.
+            rng: A numpy random state for reproducibility. (Uses numpy's mtrand 
+                random number generator by default.)
 
         Returns:
             X: An (n, m) array containing a realization of the trajectory of 
@@ -150,10 +157,10 @@ class OrdinaryDifferentialEquation(DynamicModel):
         if intervention is None:
             return integrate.odeint(self.dXdt, initial_condition, time_points)
         
-        # Define the derivative of the intervened system
+        # Define the derivative of the intervened system.
         intervention_dXdt = lambda x, t: self.dXdt(intervention(x, t), t)
 
-        # Integrate
+        # Integrate.
         X = integrate.odeint(intervention_dXdt, initial_condition, time_points)
 
         # Appy the intervention to the states produced by the integrator.
@@ -184,7 +191,7 @@ def generate_counterfactual_dynamics(
     intervention_params: Optional[Dict[str, Any]] = None,
     initial_condition_iter: Optional[Iterable[np.ndarray]] = None,
     time_points_iter: Optional[Iterable[np.ndarray]] = None,
-    seed_iter: Optional[Iterable[int]] = None,
+    rng: np.random.mtrand.RandomState = DEFAULT_RANGE,
 ):
     """Generates trajectories and corresponding counterfactual trajectories.
 
@@ -205,18 +212,15 @@ def generate_counterfactual_dynamics(
             of time points that conform to the conditions on the `time_points` 
             argument in the
             `model(**model_parameters).simulate` function.
-        seed_iter (Iterable[int]): An iterable containing seeds for reproducible
-            random number generation. Each item in the iterable must
-            conform to the conditions on the `seed` argument in the
-            `model(**model_parameters).simulate` function.
+        rng: A numpy random state for reproducibility. (Uses numpy's mtrand 
+            random number generator by default.)
             
     Returns:
         observations: An list of arrays where the ith array represents a
             realization of a trajectory of the dynamic model when the initial
-            condition is initial_condition_iter[i] and the seed is seed_iter[i].
-            The ith array has dimensions (n_i, m) where 
-            `n_i = len(time_points_iter[i])` and m is the dimensionality of the 
-            system.
+            condition is initial_condition_iter[i]. The ith array has dimensions
+            (n_i, m) where  `n_i = len(time_points_iter[i])` and m is the
+            dimensionality of the system.
         counterfactuals: A list of arrays corresponding exactly to observations
             except that the supplied intervention was applied.    
     """
@@ -226,21 +230,90 @@ def generate_counterfactual_dynamics(
         model.simulate(
             initial_condition=ic,
             time_points=t,
-            seed=s,
-            intervention_function=None
+            intervention_function=None,
+            rng=rng,
         )
         for ic, t, s in zip(
-            initial_condition_iter, time_points_iter, seed_iter)
+            initial_condition_iter, time_points_iter, rng)
     ]
 
     counterfactuals = [
         model.simulate(
             initial_condition=ic,
             time_points=t,
-            seed=s,
-            intervention=intervention
+            intervention=intervention,
+            rng=rng,
         )
         for ic, t, s in zip(
-            initial_condition_iter, time_points_iter, seed_iter)
+            initial_condition_iter, time_points_iter, rng)
     ]
     return observations, counterfactuals
+
+
+class StochasticDifferentialEquation(DynamicModel):
+
+    def simulate(
+        self,
+        initial_condition: np.ndarray,
+        time_points: np.ndarray,
+        intervention: Optional[Intervention] = None,
+        rng: np.random.mtrand.RandomState = DEFAULT_RANGE
+    ) -> np.ndarray:
+        """Simulates intervened SDE with Ito's method.
+
+        Args:
+            rng: A numpy random state for reproducibility. (Uses numpy's mtrand 
+                random number generator by default.)
+        """
+        if not intervention:
+            intervention = lambda x: x
+
+        
+        X = np.zeros(len(time_points), self.dim)
+        X[0, :] = initial_condition
+
+        for i, t in enumerate(time_points):
+            x = X[i, :]
+            dt = time_points[i+1] - t
+            dx = self.drift(x, t) * dt + self.noise(x, t) * np.sqrt(dt) * rs.randn()
+            X[i+1, :] = intervention(x + dx)
+
+
+    @abstractmethod
+    def drift(self, x, t):
+        pass
+
+    @abstractmethod
+    def noise(self, x, t):
+        pass
+
+
+def add_gaussian_noise(
+    X: np.ndarray,
+    stdevs: Optional[np.ndarray] = None,
+    rng: np.random.mtrand.RandomState = DEFAULT_RANGE
+) -> np.ndarray:
+    """Adds independent gaussian noise to the array.
+
+    Adds gaussian noise to each column. Equivalent to
+        X[i, j] += normal() * stdevs[j]
+    For all i and j.
+
+    Args:
+        X (ndarray): An (m, n) matrix that is interpreted to be a realization
+            of an n dimensional stochastic multivariate timeseries.
+        stdevs (ndarray): An (n,) array that contains the standard deviations of
+            the gaussian noise that will be added to each of the columns.
+            Defaults to ones.
+        rng: A numpy random state for reproducibility. (Uses numpy's mtrand 
+            random number generator by default.)
+
+    Returns:
+        Xhat (ndarray): An (m, n) matrix that is equivalent to 
+    """
+    # Default standard deviations.
+    if stdevs is None:
+        m, n = X.shape
+        stdevs = np.ones(n)
+    
+    return X + rng.standard_normal(X.shape) * stdevs
