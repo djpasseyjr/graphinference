@@ -2,8 +2,6 @@ from .base import (
     DynamicModel, 
     Intervention,
     generate_counterfactual_dynamics,
-    OrdinaryDifferentialEquation,
-    StochasticDifferentialEquation,
     add_gaussian_noise
 )
 

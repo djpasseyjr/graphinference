@@ -1,6 +1,6 @@
 from typing import Optional
 
-from ..base import OrdinaryDifferentialEquation
+from .base import OrdinaryDifferentialEquation
 
 import numpy as np
 

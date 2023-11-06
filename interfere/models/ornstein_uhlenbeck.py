@@ -2,7 +2,7 @@ from typing import Optional
 
 import numpy as np
 
-from ..base import StochasticDifferentialEquation
+from .base import StochasticDifferentialEquation
 
 
 class OrnsteinUhlenbeck(StochasticDifferentialEquation):
