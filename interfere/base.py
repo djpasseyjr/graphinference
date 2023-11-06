@@ -257,26 +257,55 @@ class StochasticDifferentialEquation(DynamicModel):
         initial_condition: np.ndarray,
         time_points: np.ndarray,
         intervention: Optional[Intervention] = None,
-        rng: np.random.mtrand.RandomState = DEFAULT_RANGE
+        rng: np.random.mtrand.RandomState = DEFAULT_RANGE,
+        dW: Optional[np.ndarray] = None,
     ) -> np.ndarray:
         """Simulates intervened SDE with Ito's method.
 
         Args:
             rng: A numpy random state for reproducibility. (Uses numpy's mtrand 
                 random number generator by default.)
-        """
-        if not intervention:
-            intervention = lambda x: x
+            dW: optional array of shape (len(time_points)-1, self.dim). This is
+                for advanced use, if you want to use a specific realization of
+                the d independent Wiener processes. If not provided Wiener
+                increments will be generated randomly.
 
-        
-        X = np.zeros(len(time_points), self.dim)
+        """
+        m = len(time_points)
+        X = np.zeros((m, self.dim))
+
+        # Optionally apply intervention to initial condition
+        if intervention is not None:
+            initial_condition = intervention(
+                initial_condition.copy(),
+                time_points[0]
+            )
         X[0, :] = initial_condition
 
-        for i, t in enumerate(time_points):
+        dt = (time_points[-1] - time_points[0]) / m
+
+        if dW is None:
+            # Generate sequence of weiner increments
+            dW = rng.normal(0.0, np.sqrt(dt), (m - 1, self.dim))
+
+        for i, t in zip(range(m - 1), time_points):
+            # Current state of the model.
             x = X[i, :]
-            dt = time_points[i+1] - t
-            dx = self.drift(x, t) * dt + self.noise(x, t) * np.sqrt(dt) * rs.randn()
-            X[i+1, :] = intervention(x + dx)
+
+            # Noise differential.
+            dw = self.noise(x, t) @ dW[i, :]
+
+            # Change in x.
+            dx = self.drift(x, t) * dt + dw
+
+            # Next state of the model.
+            X[i + 1, :] = x + dx
+
+            # Optionally apply the intervention.
+            if intervention is not None:
+                X[i + 1, :] = intervention(X[i + 1, :], time_points[i + 1])
+
+        return X
 
 
     @abstractmethod

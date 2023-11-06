@@ -3,6 +3,7 @@ from .base import (
     Intervention,
     generate_counterfactual_dynamics,
     OrdinaryDifferentialEquation,
+    StochasticDifferentialEquation,
     add_gaussian_noise
 )
 
