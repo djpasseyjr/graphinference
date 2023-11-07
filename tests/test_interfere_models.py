@@ -13,7 +13,7 @@ def test_lotka_voltera():
 
     interv_idx = n - 1
     interv_const = 1.0
-    model = interfere.models.LotkaVoltera(r, k, A)
+    model = interfere.dynamics.LotkaVoltera(r, k, A)
 
     # Make two kinds of interventions
     perf_interv = interfere.perfect_intervention(interv_idx, interv_const)
@@ -57,7 +57,7 @@ def test_ornstein_uhlenbeck():
     mu = np.ones(n)
     sigma = rng.random((n, n))- 0.5
 
-    model = interfere.models.OrnsteinUhlenbeck(theta, mu, sigma)
+    model = interfere.dynamics.OrnsteinUhlenbeck(theta, mu, sigma)
 
     x0 = np.random.rand(n)
     tspan = np.linspace(0, 10, 1000)
