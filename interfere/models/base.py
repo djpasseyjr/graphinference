@@ -172,11 +172,13 @@ class StochasticDifferentialEquation(DynamicModel):
             dx = self.drift(x, t) * dt + dw
 
             # Next state of the model.
-            X_do[i + 1, :] = x + dx
+            next_x = x + dx
 
             # Optionally apply the intervention.
             if intervention is not None:
-                X_do[i + 1, :] = intervention(X[i + 1, :], time_points[i + 1])
+                next_x = intervention(next_x, time_points[i + 1])
+
+            X_do[i + 1, :] = next_x
 
         # Optionally add measurement noise
         if measurement_noise_std is not None:

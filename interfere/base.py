@@ -107,7 +107,8 @@ class DynamicModel(ABC):
 def generate_counterfactual_dynamics(
     model_type: Optional[Type[DynamicModel]] = None,
     model_params: Optional[Dict[str, Any]] = None,
-    intervention_type: Optional[Type[Intervention]] = None,
+    intervention_type: Optional[
+        Callable[[np.ndarray, float], np.ndarray]] = None,
     intervention_params: Optional[Dict[str, Any]] = None,
     initial_condition_iter: Optional[Iterable[np.ndarray]] = None,
     time_points_iter: Optional[Iterable[np.ndarray]] = None,

@@ -1,6 +1,5 @@
 from .base import (
     DynamicModel, 
-    Intervention,
     generate_counterfactual_dynamics,
     add_gaussian_noise
 )
