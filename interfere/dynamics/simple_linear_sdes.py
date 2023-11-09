@@ -11,6 +11,14 @@ MATRIX_ALL_IMAG_EIGS = np.array([
     [ 0.50900001, -0.24048083,  1.16530899, -0.3334018 ]
 ])
 
+# Real matrix with all real negative eigenvalues
+MATRIX_ALL_REAL_NEG_EIGS = np.array([
+    [-1.10304862, -0.70089361, -0.45482057, -0.79479689],
+    [-0.70089361, -1.30642756, -0.58810384, -0.90591161],
+    [-0.45482057, -0.58810384, -0.30309825, -0.47258556],
+    [-0.79479689, -0.90591161, -0.47258556, -0.89742557]
+])
+
 
 class LinearSDE(StochasticDifferentialEquation):
 
@@ -103,7 +111,7 @@ class DampedOscillator(StochasticDifferentialEquation):
         return self.Sigma
     
 
-def DegenerateRoot2DLinearSDE(sigma: float = 0.0):
+def imag_roots_2d_linear_sde(sigma: float = 0.0):
     """Initializes a linear SDE with pure imaginary eigenvalues.
 
     The system has the form:
@@ -131,14 +139,14 @@ def DegenerateRoot2DLinearSDE(sigma: float = 0.0):
     return LinearSDE(A, Sigma)
 
 
-def DegenerateRoot4DLinearSDE(sigma: float = 0.0):
+def imag_roots_4d_linear_sde(sigma: float = 0.0) -> LinearSDE:
     """Initializes a linear SDE with pure imaginary eigenvalues.
 
     The system has the form:
 
         dX = AX dt + Sigma dW
 
-    Where dW is a 2D vector of independent brownian increments and
+    Where dW is a 4D vector of independent brownian increments and
 
     A = np.array([
         [ 0.54748989, -3.28156307,  1.5146247 , -1.29057552],
@@ -150,11 +158,40 @@ def DegenerateRoot4DLinearSDE(sigma: float = 0.0):
     Sigma = sigma * I
 
     Args:
-        sigma (float): controls the magnitude of the system noise.        
+        sigma (float): controls the magnitude of the brownian noise.        
     """
     Sigma = sigma * np.eye(MATRIX_ALL_IMAG_EIGS.shape[0])
     A = MATRIX_ALL_IMAG_EIGS
     return LinearSDE(A, Sigma)
 
 
-    
+def attracting_fixed_point_4d_linear_sde(sigma: float= 0.0) -> LinearSDE:
+    """Initializes a system with a stable attracting fixed point.
+
+    The system has the form:
+
+        dX = AX dt + Sigma dW
+
+    Where dW is a 4D vector of independent brownian increments and
+
+    A = np.array([
+        [-1.10304862, -0.70089361, -0.45482057, -0.79479689],
+        [-0.70089361, -1.30642756, -0.58810384, -0.90591161],
+        [-0.45482057, -0.58810384, -0.30309825, -0.47258556],
+        [-0.79479689, -0.90591161, -0.47258556, -0.89742557]
+    ])
+
+    Sigma = sigma * I
+
+    All eigenvalues of A are negative and real.
+        eigs = [-0.01, -3.0, -0.5, -0.1]
+
+    Args:
+        sigma (float): controls the magnitude of the brownian noise.  
+
+    Returns:
+        A LinearSDE with a stable attracting fixed point.
+    """
+    Sigma = sigma * np.eye(MATRIX_ALL_REAL_NEG_EIGS.shape[0])
+    A = MATRIX_ALL_REAL_NEG_EIGS
+    return LinearSDE(A, Sigma)
