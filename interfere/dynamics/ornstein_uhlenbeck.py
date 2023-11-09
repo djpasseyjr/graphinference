@@ -11,40 +11,40 @@ class OrnsteinUhlenbeck(StochasticDifferentialEquation):
         self,
         theta: Optional[np.ndarray] = None,
         mu: Optional[np.ndarray] = None,
-        sigma: Optional[np.ndarray] = None
+        Sigma: Optional[np.ndarray] = None
     ):
         """Initializes n-dimensional Ornstein Uhlenbeck process.
 
-        dX = theta(mu - X)dt + sigma dW
+        dX = theta(mu - X)dt + Sigma dW
 
         Args:
             theta (ndarray): A (n, n) matrix.
             mu (ndarray): A (n,) vector.
-            sigma (ndarray): A (n,) vector.
+            Sigma (ndarray): A (n, n) matrix.
         """
         # Input validation
         if any([
             mu.shape[0] != theta.shape[0],
             theta.shape[0] != theta.shape[1],
-            theta.shape[0] != sigma.shape[0],
-            sigma.shape[1] != mu.shape[0]
+            theta.shape[0] != Sigma.shape[0],
+            Sigma.shape[1] != mu.shape[0]
         ]):
             raise ValueError(
                 "Parameters for Lotka Voltera must have matching dimensions. "
                 "Argument shapes: "
                 f"\n\ttheta.shape = {theta.shape}"
                 f"\n\tmu.shape = {mu.shape}"
-                f"\n\tsigma.shape = {sigma.shape}"
+                f"\n\tSigma.shape = {Sigma.shape}"
             )
         # Set dimension
         super().__init__(len(mu))
         # Assign class attributes
         self.theta = theta
         self.mu = mu
-        self.sigma = sigma
+        self.Sigma = Sigma
 
     def drift(self, x: np.ndarray, t: float):
         return self.theta @ (self.mu - x)
     
     def noise(self, x: np.ndarray, t: float):
-        return self.sigma
+        return self.Sigma
