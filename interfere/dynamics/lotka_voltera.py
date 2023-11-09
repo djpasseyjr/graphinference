@@ -1,6 +1,6 @@
 from typing import Optional
 
-from .base import OrdinaryDifferentialEquation
+from .base import OrdinaryDifferentialEquation, StochasticDifferentialEquation
 
 import numpy as np
 
@@ -14,10 +14,17 @@ class LotkaVoltera(OrdinaryDifferentialEquation):
                  interaction_mat: np.ndarray):
         """Initializes class for simulating Lotka Voltera dynamics.
 
+            dx_i/dt = r_i * x_i * (1 - x_i / k_i +  [A x]_i / k_i)
+        
+        where r_i and k_i are the growth rates and carrying capacities of
+        species i, A is the matrix of interspecies interactions.
+
         Args:
-            growth_rates (ndarray): A length n vector of growth rates.
-            capacities (ndarray): A length n vector of carrying capacities.
-            interaction_mat: A weighted (n, n) matrix of interspecies interactions.
+            growth_rates (ndarray): A length n vector of growth rates (r_i's).
+            capacities (ndarray): A length n vector of carrying capacities 
+                (k_i's).
+            interaction_mat: A weighted (n, n) matrix of interspecies
+            interactions. (A in the above equation.)
         """
         # Input validation
         if any([
@@ -57,3 +64,45 @@ class LotkaVoltera(OrdinaryDifferentialEquation):
                 x / self.capacities
             )
         )
+    
+
+class LotkaVolteraSDE(StochasticDifferentialEquation, LotkaVoltera):
+
+    def __init__(
+        self,
+        growth_rates: np.ndarray,
+        capacities: np.ndarray,
+        interaction_mat: np.ndarray,
+        sigma: float
+    ):
+        """Initializes class for simulating Lotka Voltera dynamics.
+
+            dx_i/dt = r_i * x_i * (1 - x_i / k_i +  [A x]_i / k_i) + sigma * dW
+
+        where r_i and k_i are the growth rates and carrying capacities of
+        species i, A is the matrix of interspecies interactions and sigma
+        is the magnitude of the effect of the Weiner process.
+
+
+        Args:
+            growth_rates (ndarray): A length n vector of growth rates (r_i's).
+            capacities (ndarray): A length n vector of carrying capacities 
+                (k_i's).
+            interaction_mat: A weighted (n, n) matrix of interspecies
+                interactions. (A in the above equation.)
+            sigma (float): Coefficient on noise. 
+        """
+        # The following line actually uses the LotkaVoltera.__init__()
+        # function by skipping StochasticDifferentialEquation in this
+        # classes multiple resolution order.
+        super(StochasticDifferentialEquation, self).__init__(
+            growth_rates, capacities, interaction_mat)
+        self.sigma = sigma
+
+    def drift(self, x, t):
+        return self.dXdt(x, t)
+    
+    def noise(self, x, t):
+        return self.sigma * np.eye(self.dim)
+
+    
