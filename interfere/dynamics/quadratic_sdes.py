@@ -9,12 +9,18 @@ class Belozyorov3DQuad(StochasticDifferentialEquation):
         """Initializes a 3D quadratic SDE.
 
         dx/dt = -2x + 7y^2 + 13z^2 
-        dy/dy = mu*x + 7y + 10z
+
+        dy/dy = mu*x + 7y + 10z - 3xy
+
         dz/dt = -10y + 7z -3xz
 
+        
         dX = dx/dt(x, y, z) * dt + sigma dW
+
         dY = dy/dt(x, y, z) * dt + sigma dW
+        
         dZ = dz/dt(x, y, z) * dt + sigma dW
+
         
         Taken from 
             Belozyorov (2015). Exponential-Algebraic Maps and Chaos in 3D
@@ -24,6 +30,7 @@ class Belozyorov3DQuad(StochasticDifferentialEquation):
             mu (float): A parameter that can be tuned to generate chaotic
                 behavior. Should be in [0, 2.27) and mu = 1.81 should lead
                 to chaotic dynamics.
+
             sigma (float):  Coefficient on Weiner intervals.        
         """
         dim = 3
@@ -35,7 +42,7 @@ class Belozyorov3DQuad(StochasticDifferentialEquation):
     def drift(self, X: np.ndarray, t: float):
         x, y, z = X[0], X[1], X[2]
         dxdt = -2 * x + 7 * y ** 2 + 13 * z ** 2
-        dydt = self.mu * x + 7 * y + 10 * z
+        dydt = self.mu * x + 7 * y + 10 * z - 3 * x * y
         dzdt = -10 * y + 7 * z -3 * x * z
         return np.array([dxdt, dydt, dzdt])
     

@@ -1,5 +1,7 @@
 import numpy as np
+import pandas as pd
 from statsmodels.tools.validation import array_like, int_like
+from statsmodels.tsa.api import VAR
 
 
 def simulate_perfect_intervention_var(
@@ -126,3 +128,27 @@ def simulate_perfect_intervention_var(
 
     return result.reshape(result_shape)
     
+def var_perf_interv_extrapolate(
+    X,
+    t,
+    intervention_idx,
+    intervention_value,
+    maxlags=2
+):
+    """Predicts the effect of a perfect intervention on the observed system.
+    """
+    df = pd.DataFrame(X)
+    model = VAR(df)
+    results = model.fit(maxlags)
+
+    # Simulate and return averge values of each variable.
+    var_X_do= simulate_perfect_intervention_var(
+        intervention_idx,
+        intervention_value,
+        results.coefs,
+        results.intercept,
+        results.sigma_u,
+        steps=len(t),
+        initial_values=X[0, :]
+    )   
+    return var_X_do

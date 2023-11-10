@@ -151,11 +151,10 @@ def generate_counterfactual_dynamics(
         model.simulate(
             initial_condition=ic,
             time_points=t,
-            intervention_function=None,
+            intervention=None,
             rng=rng,
         )
-        for ic, t, s in zip(
-            initial_condition_iter, time_points_iter, rng)
+        for ic, t in zip(initial_condition_iter, time_points_iter)
     ]
 
     counterfactuals = [
@@ -165,8 +164,7 @@ def generate_counterfactual_dynamics(
             intervention=intervention,
             rng=rng,
         )
-        for ic, t, s in zip(
-            initial_condition_iter, time_points_iter, rng)
+        for ic, t in zip(initial_condition_iter, time_points_iter)
     ]
     return observations, counterfactuals
 

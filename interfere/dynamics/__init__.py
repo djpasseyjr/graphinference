@@ -7,4 +7,5 @@ from .simple_linear_sdes import (
     imag_roots_4d_linear_sde,
     attracting_fixed_point_4d_linear_sde
 )
+from .quadratic_sdes import Belozyorov3DQuad, Liping3DQuadFinance
 from .base import  OrdinaryDifferentialEquation, StochasticDifferentialEquation
