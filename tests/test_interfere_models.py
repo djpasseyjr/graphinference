@@ -84,7 +84,7 @@ def test_ornstein_uhlenbeck():
 
     # Construct parameters of the true intervened system
     theta_perf_inter = model.theta.copy()
-    sigma_perf_inter = model.sigma.copy()
+    sigma_perf_inter = model.Sigma.copy()
 
     theta_perf_inter[0, :] = 0
     sigma_perf_inter[0, :] = 0
