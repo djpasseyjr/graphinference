@@ -123,3 +123,14 @@ def test_ornstein_uhlenbeck():
 
     # Check that the simulations match
     assert np.mean((X_perf_inter - X_perf_inter_sim) ** 2) < 0.01
+
+
+def test_coupled_logistic_map():
+    rng = np.random.default_rng(11)
+
+    A = rng.random((5, 5)) < 0.1
+    model = interfere.dynamics.CoupledLogisticMaps(A)
+    x0 = rng.random(5)
+    t = range(100)
+    X = model.simulate(x0, t)
+    assert X.shape == (100, 5)
