@@ -4,7 +4,7 @@ HOURS_PER_SIM=4
 DATADIR="/work/users/d/j/djpassey/math768"
 
 # Arguments for sbatch. Sets the appropriate time limit and directory
-FLAGS="--ntasks=1 --cpus-per-task=1 --time=$(HOURS_PER_SIM):00:00 --chdir=$DATADIR"
+FLAGS="--ntasks=1 --cpus-per-task=1 --time=$HOURS_PER_SIM:00:00 --chdir=$DATADIR"
 
 # Total number of jobs
 NJOBS=42
