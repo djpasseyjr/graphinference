@@ -1,3 +1,5 @@
+#!/bin/sh
+ 
 # Expected number of hours to run one simulation (always overestimate so that slurm doesnt kill the sim)
 HOURS_PER_SIM=4
 # Directory to store the output data
