@@ -21,5 +21,5 @@ args[1]["best_ps"] = best_ps
 args[1]["X_do_preds"] = X_do_preds
 
 
-with open(f"{DIR_PATH}/{FILE_PREFIX}_{exp_idx}.pkl", "wb") as f:
+with open(f"{FILE_PREFIX}_{exp_idx}.pkl", "wb") as f:
     pkl.dump(args, f)
