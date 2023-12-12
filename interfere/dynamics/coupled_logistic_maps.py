@@ -109,7 +109,7 @@ class CoupledLogisticMaps(DynamicModel):
 
             # Apply intervention
             if intervention is not None:
-                X_do[i] = intervention(X_do[i])
+                X_do[i] = intervention(X_do[i], time_points[i])
 
             # Compute next state
             X_do[i+1] = (
@@ -119,7 +119,8 @@ class CoupledLogisticMaps(DynamicModel):
 
         # Apply interention
         if intervention is not None:
-            X_do[nsteps] = intervention(X_do[nsteps])
+            X_do[nsteps - 1] = intervention(
+                X_do[nsteps - 1], time_points[nsteps - 1])
         
         if measurement_noise_std is not None:
             X_do = self.add_measurement_noise(X_do, measurement_noise_std, rng)

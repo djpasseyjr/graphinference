@@ -134,3 +134,10 @@ def test_coupled_logistic_map():
     t = range(100)
     X = model.simulate(x0, t)
     assert X.shape == (100, 5)
+
+    # Make an intervention function
+    interv_idx = 0
+    interv_const = 1.0
+    intervention = interfere.perfect_intervention(interv_idx, interv_const)
+    X_do = model.simulate(x0, t, intervention)
+    assert np.all(X_do[:, interv_idx] == interv_const)

@@ -6,4 +6,5 @@ from .base import (
 
 from . import dynamics
 from . import methods
-from .interventions import perfect_intervention, signal_intervention
+from .interventions import perfect_intervention, signal_intervention, PerfectIntervention
+from . import benchmarking

@@ -1,8 +1,31 @@
 import numpy as np
 import pandas as pd
-from statsmodels.tools.validation import array_like, int_like
-from statsmodels.tsa.api import VAR
+from sklearn.base import BaseEstimator
+from statsmodels.tools.validation import array_like, int_like 
+from sktime.forecasting.var import VAR as skt_VAR
+from statsmodels.tsa.api import VAR as sm_VAR
 
+
+class VAR(skt_VAR):
+    """Wrapper of sktime vector autoregression model.
+    """
+
+    def simulate_counterfactual(self, X, time_points, intervention):
+
+        self.fit(X)
+        # Simulate and return averge values of each variable.
+        # TODO Make compatible with multiple signal interventions
+        var_X_do = simulate_perfect_intervention_var(
+            intervention.intervened_idxs[0],
+            intervention.constants[0],
+            self._fitted_forecaster.coefs,
+            self._fitted_forecaster.intercept,
+            self._fitted_forecaster.sigma_u,
+            steps=len(time_points),
+            initial_values=X[0, :]
+        )   
+        return var_X_do 
+    
 
 def simulate_perfect_intervention_var(
     intervention_idx: int,
@@ -10,7 +33,7 @@ def simulate_perfect_intervention_var(
     coefs: np.ndarray,
     intercept: np.ndarray,
     sig_u: np.ndarray,
-    steps: int =100,
+    steps: int=100,
     initial_values=None,
     seed=None,
     nsimulations=None
@@ -127,7 +150,8 @@ def simulate_perfect_intervention_var(
             ygen[:, intervention_idx] = intervention_value
 
     return result.reshape(result_shape)
-    
+
+
 def var_perf_interv_extrapolate(
     X,
     t,
@@ -138,7 +162,7 @@ def var_perf_interv_extrapolate(
     """Predicts the effect of a perfect intervention on the observed system.
     """
     df = pd.DataFrame(X)
-    model = VAR(df)
+    model = sm_VAR(df)
     results = model.fit(maxlags)
 
     # Simulate and return averge values of each variable.

@@ -1,8 +1,9 @@
 from abc import ABC, abstractmethod
-from typing import Any, Callable, Dict, Iterable, Optional, Type
+from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple, Type
 
 import numpy as np
 from numpy.random import Generator
+from sktime.forecasting.base import BaseForecaster
 
 # Default range for random number generation.
 DEFAULT_RANGE = generator = np.random.default_rng()
@@ -90,8 +91,8 @@ class DynamicModel(ABC):
         For all i and j.
 
         Args:
-            X (ndarray): An (m, n) matrix that is interpreted to be a realization
-                of an n dimensional stochastic multivariate timeseries.
+            X (ndarray): An (m, n) matrix that is interpreted to be a  
+                realization of an n dimensional stochastic multivariate timeseries.
             stdevs (ndarray): An (n,) array that contains the standard deviations of
                 the gaussian noise that will be added to each of the columns.
                 Defaults to ones.
@@ -99,11 +100,20 @@ class DynamicModel(ABC):
                 random number generator by default.)
 
         Returns:
-            Xhat (ndarray): An (m, n) matrix that is equivalent to 
+            Xhat (ndarray): An (m, n) matrix that is equivalent to X + normally
+                normally distributed noise.
         """
         return add_gaussian_noise(X, measurement_noise_std, rng)
 
+
+class Intervention(ABC):
+    """Abstract intervention class"""
     
+    @abstractmethod
+    def __call__():
+        raise NotImplementedError
+    
+
 def generate_counterfactual_dynamics(
     model_type: Optional[Type[DynamicModel]] = None,
     model_params: Optional[Dict[str, Any]] = None,
@@ -131,8 +141,7 @@ def generate_counterfactual_dynamics(
             `model(**model_parameters).simulate` function.
         time_points_iter (Iterable[np.ndarray]): An iterable containing arrays
             of time points that conform to the conditions on the `time_points` 
-            argument in the
-            `model(**model_parameters).simulate` function.
+            argument in the `model(**model_parameters).simulate` function.
         rng: A numpy random state for reproducibility. (Uses numpy's mtrand 
             random number generator by default.)
             
@@ -198,3 +207,5 @@ def add_gaussian_noise(
         stdevs = np.ones(n)
     
     return X + rng.standard_normal(X.shape) * stdevs
+
+

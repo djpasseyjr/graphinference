@@ -1,5 +1,8 @@
+from .base import  OrdinaryDifferentialEquation, StochasticDifferentialEquation
+from .coupled_logistic_maps import CoupledLogisticMaps
 from .lotka_voltera import LotkaVoltera, LotkaVolteraSDE
 from .ornstein_uhlenbeck import OrnsteinUhlenbeck
+from .quadratic_sdes import Belozyorov3DQuad, Liping3DQuadFinance
 from .simple_linear_sdes import (
     DampedOscillator,
     LinearSDE,
@@ -7,5 +10,3 @@ from .simple_linear_sdes import (
     imag_roots_4d_linear_sde,
     attracting_fixed_point_4d_linear_sde
 )
-from .quadratic_sdes import Belozyorov3DQuad, Liping3DQuadFinance
-from .base import  OrdinaryDifferentialEquation, StochasticDifferentialEquation

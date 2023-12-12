@@ -94,7 +94,7 @@ class LotkaVolteraSDE(StochasticDifferentialEquation, LotkaVoltera):
         """
         # The following line actually uses the LotkaVoltera.__init__()
         # function by skipping StochasticDifferentialEquation in this
-        # classes multiple resolution order.
+        # class's multiple resolution order.
         super(StochasticDifferentialEquation, self).__init__(
             growth_rates, capacities, interaction_mat)
         self.sigma = sigma

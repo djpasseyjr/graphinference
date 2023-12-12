@@ -55,10 +55,9 @@ class OrdinaryDifferentialEquation(DynamicModel):
                 random number generator by default.)
 
         Returns:
-            X: An (n, m) array containing a realization of the trajectory of 
-                the m dimensional system corresponding to the n times in 
-                `time_points`. The first p rows contain the initial condition/
-                history of the system and count towards n.
+            X_do: An (n, m) array containing a realization of the trajectory of 
+                the m dimensional system in response to the intervention where
+                the n rows correspond to the n times in `time_points`.
         """
         if intervention is None:
             return integrate.odeint(self.dXdt, initial_condition, time_points)
@@ -109,7 +108,7 @@ class StochasticDifferentialEquation(DynamicModel):
 
         Args:
             initial_condition: A (m,) array of the initial condition
-                or the historical conditions of the dynamic model.
+                of the dynamic model.
             time_points: A (n,) array of the time points where the dynamic 
                 model will be simulated.
             intervention: A function that accepts (1) a vector of the
@@ -143,6 +142,11 @@ class StochasticDifferentialEquation(DynamicModel):
                 for advanced use, if you want to use a specific realization of
                 the independent Wiener processes. If not provided Wiener
                 increments will be generated randomly.
+
+        Returns:
+            X_do: An (n, m) array containing a realization of the trajectory of 
+                the m dimensional system in response to the intervention where
+                the n rows correspond to the n times in `time_points`.
         """
         m = len(time_points)
         X_do = np.zeros((m, self.dim))
