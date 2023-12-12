@@ -58,8 +58,6 @@ class SINDY(ps.SINDy, BaseEstimator):
         return pred_X_do
         
 
-
-
 def sindy_perf_interv_extrapolate(
     X,
     t,

@@ -100,6 +100,7 @@ class StochasticDifferentialEquation(DynamicModel):
         initial_condition: np.ndarray,
         time_points: np.ndarray,
         intervention: Optional[Callable[[np.ndarray, float], np.ndarray]]= None,
+        # TODO: Change measurement noise so it is a data member.
         measurement_noise_std: Optional[np.ndarray] = None,
         rng: np.random.mtrand.RandomState = DEFAULT_RANGE,
         dW: Optional[np.ndarray] = None,

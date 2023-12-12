@@ -4,6 +4,7 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import TimeSeriesSplit
 
 from .interventions import ExogIntervention
+from .base import generate_counterfactual_dynamics
 
 
 def directional_accuracy(X, X_do, pred_X_do, intervention_idx):
@@ -98,7 +99,7 @@ def score_extrapolation_method(
     # Combine best params with default params. (Items in best_params will
     # overwrite items in method_params if there are duplicates here.)
     sim_params = {**method_params, **best_params}
-    
+
     # Simulate intervention
     X_do_predictions = [
         method_type(**sim_params).simulate_counterfactual(
@@ -116,3 +117,27 @@ def score_extrapolation_method(
     ]
 
     return scores, best_params, X_do_predictions
+
+
+def benchmark(dynamic_model_args, score_method_args):
+    obs, cntrfactuals = generate_counterfactual_dynamics(**dynamic_model_args)
+    all_scores = []
+    all_best_ps = []
+    all_X_do_preds = []
+
+    intervention=dynamic_model_args["intervention_type"](
+            **dynamic_model_args["intervention_params"])
+    
+    for i in range(len(obs)):
+        score, best_ps, X_do_pred = score_extrapolation_method(
+            obs[i],
+            cntrfactuals[i],
+            dynamic_model_args["time_points_iter"][i],
+            intervention,
+            **score_method_args
+        )
+        all_scores.append(score)
+        all_best_ps.append(best_ps)
+        all_X_do_preds.append(X_do_pred)
+
+    return all_scores, all_best_ps, all_X_do_preds

@@ -161,6 +161,8 @@ def generate_counterfactual_dynamics(
             initial_condition=ic,
             time_points=t,
             intervention=None,
+            # TODO: change this default setting.
+            measurement_noise_std=np.ones(model.dim),
             rng=rng,
         )
         for ic, t in zip(initial_condition_iter, time_points_iter)
