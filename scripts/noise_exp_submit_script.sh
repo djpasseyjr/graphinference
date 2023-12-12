@@ -10,5 +10,5 @@ FLAGS="--ntasks=1 --cpus-per-task=1 --time=$HOURS_PER_SIM:00:00 --chdir=$DATADIR
 NJOBS=42
 for((n=0; n<$NJOBS; n+=1)); do
     # Submit the multiple parameter job script to the clusters
-    sbatch $FLAGS multi_param_job.sh $n
+    sbatch $FLAGS /nas/longleaf/home/djpassey/graphinference/scripts/job_script_noise_exp.sh $n
 done
