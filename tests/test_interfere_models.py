@@ -3,6 +3,13 @@ import numpy as np
 from scipy import integrate
 import sdeint
 
+from interfere.dynamics import (
+    StandardNormalNoise,
+    StandardCauchyNoise,
+    StandardExponentialNoise,
+    StandardGammaNoise,
+    StandardTNoise
+)
 
 def test_lotka_voltera():
     # Initialize interfere.LotkaVoltera model.
@@ -141,3 +148,46 @@ def test_coupled_logistic_map():
     intervention = interfere.perfect_intervention(interv_idx, interv_const)
     X_do = model.simulate(x0, t, intervention)
     assert np.all(X_do[:, interv_idx] == interv_const)
+
+def test_normal_noise():
+    rng = np.random.default_rng(11)
+    model = interfere.dynamics.StandardNormalNoise(5)
+    X = model.simulate(np.ones(5), np.arange(1000), rng=rng)
+
+    # Check initial condition
+    assert np.all(X[0] == 1)
+
+    # Check that the normal distribution works as expected
+    assert np.all(np.abs(np.mean(X[1:, :], axis=0)) < 0.1)
+    assert np.all(np.abs(np.std(X[1:, :], axis=0) - 1) < 0.1)
+
+    f = interfere.perfect_intervention(0, 30.0)
+    rng = np.random.default_rng(11)
+    X_do = model.simulate(np.ones(5), np.arange(1000), f, rng=rng)
+
+    # Check that the intervention was applied
+    assert np.all(X_do[:, 0] == 30.0)
+
+    # Check that the random state generated reproducible noise
+    assert np.all(X_do[:, 1:] == X[:, 1:])
+
+
+    def test_noise_dynamics():
+        noise_models = [StandardNormalNoise, StandardCauchyNoise, 
+            StandardExponentialNoise, StandardGammaNoise, StandardTNoise]
+        
+        f = interfere.perfect_intervention(0, 30.0)
+        for model_class in noise_models:
+            rng = np.random.default_rng(11)
+            X_do = model.simulate(np.ones(5), np.arange(1000), f, rng=rng)
+
+            # Check that the intervention was applied
+            assert np.all(X_do[:, 0] == 30.0)
+
+            # Check that the array is the right size
+            assert X_do.shape == (1000, 5)
+
+            # Check that random state is working properly
+            rng = np.random.default_rng(11)
+            X_do2 = model.simulate(np.ones(5), np.arange(1000), f, rng=rng)
+            assert np.all(X_do == X_do2)
