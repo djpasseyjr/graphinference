@@ -1,3 +1,5 @@
+from typing import Optional
+
 import numpy as np
 
 from .base import StochasticDifferentialEquation
@@ -5,7 +7,12 @@ from .base import StochasticDifferentialEquation
 
 class Belozyorov3DQuad(StochasticDifferentialEquation):
 
-    def __init__(self, mu: float = 1.81, sigma: float = 0.0):
+    def __init__(
+        self,
+        mu: float = 1.81,
+        sigma: float = 0.0,
+        measurement_noise_std: Optional[np.ndarray] = None
+    ):
         """Initializes a 3D quadratic SDE.
 
         dx/dt = -2x + 7y^2 + 13z^2 
@@ -30,11 +37,17 @@ class Belozyorov3DQuad(StochasticDifferentialEquation):
             mu (float): A parameter that can be tuned to generate chaotic
                 behavior. Should be in [0, 2.27) and mu = 1.81 should lead
                 to chaotic dynamics.
-
-            sigma (float):  Coefficient on Weiner intervals.        
+            sigma (float):  Coefficient on Weiner intervals.
+            measurement_noise_std (ndarray): None, or a vector with shape (n,)
+                where each entry corresponds to the standard deviation of the
+                measurement noise for that particular dimension of the dynamic
+                model. For example, if the dynamic model had two variables x1
+                and x2 and `measurement_noise_std = [1, 10]`, then
+                independent gaussian noise with standard deviation 1 and 10
+                will be added to x1 and x2 respectively at each point in time.     
         """
         dim = 3
-        super().__init__(dim)
+        super().__init__(dim, measurement_noise_std)
         self.mu = mu
         self.sigma = sigma
         self.Sigma = sigma * np.eye(dim)
@@ -52,7 +65,11 @@ class Belozyorov3DQuad(StochasticDifferentialEquation):
 
 class Liping3DQuadFinance(StochasticDifferentialEquation):
 
-    def __init__(self, sigma: float = 0.0):
+    def __init__(
+        self,
+        sigma: float = 0.0,
+        measurement_noise_std: Optional[np.ndarray] = None
+    ):
         """Initializes a 3D quadradic chaotic system.
 
         dy1/dt = y3 + (y2 - 0.3)y1
@@ -73,9 +90,16 @@ class Liping3DQuadFinance(StochasticDifferentialEquation):
 
         Args:
             sigma (float): Coefficient on the independent Weiner increments.
+            measurement_noise_std (ndarray): None, or a vector with shape (n,)
+                where each entry corresponds to the standard deviation of the
+                measurement noise for that particular dimension of the dynamic
+                model. For example, if the dynamic model had two variables x1
+                and x2 and `measurement_noise_std = [1, 10]`, then
+                independent gaussian noise with standard deviation 1 and 10
+                will be added to x1 and x2 respectively at each point in time. 
         """
         dim = 3
-        super().__init__(dim)
+        super().__init__(dim, measurement_noise_std)
         self.sigma = sigma
 
     def drift(self, Y: np.ndarray, t: float):

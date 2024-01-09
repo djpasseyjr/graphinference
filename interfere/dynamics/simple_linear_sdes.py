@@ -1,3 +1,5 @@
+from typing import Optional
+
 import numpy as np
 
 from .base import StochasticDifferentialEquation
@@ -22,7 +24,12 @@ MATRIX_ALL_REAL_NEG_EIGS = np.array([
 
 class LinearSDE(StochasticDifferentialEquation):
 
-    def __init__(self, A: np.ndarray, sigma: np.ndarray):
+    def __init__(
+        self,
+        A: np.ndarray,
+        sigma: np.ndarray,
+        measurement_noise_std: Optional[np.ndarray] = None
+    ):
         """Initializes stochastic differential equation with the following form:
 
             dX = A X dt + sigma dW
@@ -31,6 +38,13 @@ class LinearSDE(StochasticDifferentialEquation):
             A (ndarray): (n, n) matrix.
             sigma (ndarray): (n, n) matrix. Used to rescale the independent
                 Weiner increments.
+            measurement_noise_std (ndarray): None, or a vector with shape (n,)
+                where each entry corresponds to the standard deviation of the
+                measurement noise for that particular dimension of the dynamic
+                model. For example, if the dynamic model had two variables x1
+                and x2 and `measurement_noise_std = [1, 10]`, then
+                independent gaussian noise with standard deviation 1 and 10
+                will be added to x1 and x2 respectively at each point in time.
         """
 
         # Input vaidation
@@ -45,7 +59,7 @@ class LinearSDE(StochasticDifferentialEquation):
                 f"\n\tsigma.shape = {sigma.shape}"
             )
         dim = A.shape[0]
-        super().__init__(dim)
+        super().__init__(dim, measurement_noise_std)
         self.A = A
         self.sigma = sigma
 
@@ -58,7 +72,14 @@ class LinearSDE(StochasticDifferentialEquation):
 
 class DampedOscillator(StochasticDifferentialEquation):
 
-    def __init__(self, m: float, c: float, k: float, sigma: float):
+    def __init__(
+        self,
+        m: float,
+        c: float,
+        k: float,
+        sigma: float,
+        measurement_noise_std: Optional[np.ndarray] = None
+    ):
         """Initializes a stochastic damped linear oscilator.
 
         The deterministic dynamics can be described by the second order
@@ -81,7 +102,14 @@ class DampedOscillator(StochasticDifferentialEquation):
             c (float): The damping coefficient. Must be positive.
             k (float): The spring constant. Must be positive.
             sigma (float): The noise coefficient.
-        """
+            measurement_noise_std (ndarray): None, or a vector with shape (n,)
+                where each entry corresponds to the standard deviation of the
+                measurement noise for that particular dimension of the dynamic
+                model. For example, if the dynamic model had two variables x1
+                and x2 and `measurement_noise_std = [1, 10]`, then
+                independent gaussian noise with standard deviation 1 and 10
+                will be added to x1 and x2 respectively at each point in time.
+    """
         # Validate input
         if any((
             m < 0,
@@ -92,7 +120,7 @@ class DampedOscillator(StochasticDifferentialEquation):
             raise ValueError("Damped oscilator parameters must be positive.")
         
         dims = 2
-        super().__init__(dims)
+        super().__init__(dims, measurement_noise_std)
         self.m = m
         self.c = c
         self.k = k
@@ -111,7 +139,10 @@ class DampedOscillator(StochasticDifferentialEquation):
         return self.Sigma
     
 
-def imag_roots_2d_linear_sde(sigma: float = 0.0):
+def imag_roots_2d_linear_sde(
+    sigma: float = 0.0,
+    measurement_noise_std: Optional[np.ndarray] = None
+) -> LinearSDE:
     """Initializes a linear SDE with pure imaginary eigenvalues.
 
     The system has the form:
@@ -130,16 +161,26 @@ def imag_roots_2d_linear_sde(sigma: float = 0.0):
 
     Args:
         sigma (float): controls the magnitude of the system noise.        
-    """
+        measurement_noise_std (ndarray): None, or a vector with shape (n,)
+            where each entry corresponds to the standard deviation of the
+            measurement noise for that particular dimension of the dynamic
+            model. For example, if the dynamic model had two variables x1
+            and x2 and `measurement_noise_std = [1, 10]`, then
+            independent gaussian noise with standard deviation 1 and 10
+            will be added to x1 and x2 respectively at each point in time.
+"""
     Sigma = sigma * np.eye(2)
     A = np.array([
         [0, -4],
         [1, 0]
     ])
-    return LinearSDE(A, Sigma)
+    return LinearSDE(A, Sigma, measurement_noise_std)
 
 
-def imag_roots_4d_linear_sde(sigma: float = 0.0) -> LinearSDE:
+def imag_roots_4d_linear_sde(
+    sigma: float = 0.0,
+    measurement_noise_std: Optional[np.ndarray] = None
+) -> LinearSDE:
     """Initializes a linear SDE with pure imaginary eigenvalues.
 
     The system has the form:
@@ -165,7 +206,10 @@ def imag_roots_4d_linear_sde(sigma: float = 0.0) -> LinearSDE:
     return LinearSDE(A, Sigma)
 
 
-def attracting_fixed_point_4d_linear_sde(sigma: float= 0.0) -> LinearSDE:
+def attracting_fixed_point_4d_linear_sde(
+    sigma: float= 0.0,
+    measurement_noise_std: Optional[np.ndarray] = None
+) -> LinearSDE:
     """Initializes a system with a stable attracting fixed point.
 
     The system has the form:
@@ -187,11 +231,18 @@ def attracting_fixed_point_4d_linear_sde(sigma: float= 0.0) -> LinearSDE:
         eigs = [-0.01, -3.0, -0.5, -0.1]
 
     Args:
-        sigma (float): controls the magnitude of the brownian noise.  
-
+        sigma (float): controls the magnitude of the brownian noise. 
+        measurement_noise_std (ndarray): None, or a vector with shape (n,)
+            where each entry corresponds to the standard deviation of the
+            measurement noise for that particular dimension of the dynamic
+            model. For example, if the dynamic model had two variables x1
+            and x2 and `measurement_noise_std = [1, 10]`, then
+            independent gaussian noise with standard deviation 1 and 10
+            will be added to x1 and x2 respectively at each point in time.
+            
     Returns:
         A LinearSDE with a stable attracting fixed point.
     """
     Sigma = sigma * np.eye(MATRIX_ALL_REAL_NEG_EIGS.shape[0])
     A = MATRIX_ALL_REAL_NEG_EIGS
-    return LinearSDE(A, Sigma)
+    return LinearSDE(A, Sigma, measurement_noise_std)

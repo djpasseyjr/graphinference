@@ -10,8 +10,13 @@ class LotkaVoltera(OrdinaryDifferentialEquation):
     Can be simulated using the parent class `simulate` method.
     """
 
-    def __init__(self, growth_rates: np.ndarray, capacities: np.ndarray,
-                 interaction_mat: np.ndarray):
+    def __init__(
+        self,
+        growth_rates: np.ndarray,
+        capacities: np.ndarray,
+        interaction_mat: np.ndarray,
+        measurement_noise_std: Optional[np.ndarray] = None
+    ):
         """Initializes class for simulating Lotka Voltera dynamics.
 
             dx_i/dt = r_i * x_i * (1 - x_i / k_i +  [A x]_i / k_i)
@@ -24,7 +29,14 @@ class LotkaVoltera(OrdinaryDifferentialEquation):
             capacities (ndarray): A length n vector of carrying capacities 
                 (k_i's).
             interaction_mat: A weighted (n, n) matrix of interspecies
-            interactions. (A in the above equation.)
+                interactions. (A in the above equation.)
+            measurement_noise_std (ndarray): None, or a vector with shape (n,)
+                where each entry corresponds to the standard deviation of the
+                measurement noise for that particular dimension of the dynamic
+                model. For example, if the dynamic model had two variables x1
+                and x2 and `measurement_noise_std = [1, 10]`, then
+                independent gaussian noise with standard deviation 1 and 10
+                will be added to x1 and x2 respectively at each point in time.  
         """
         # Input validation
         if any([
@@ -44,7 +56,7 @@ class LotkaVoltera(OrdinaryDifferentialEquation):
         self.capacities = capacities
         self.interaction_mat = interaction_mat
         # Set dimension of the system.
-        super().__init__(len(growth_rates))
+        super().__init__(len(growth_rates), measurement_noise_std)
 
     def dXdt(self, x: np.ndarray, t: Optional[float] = None):
         """Coputes derivative of a generalized Lotka Voltera model.
@@ -73,7 +85,8 @@ class LotkaVolteraSDE(StochasticDifferentialEquation, LotkaVoltera):
         growth_rates: np.ndarray,
         capacities: np.ndarray,
         interaction_mat: np.ndarray,
-        sigma: float
+        sigma: float,
+        measurement_noise_std: Optional[np.ndarray] = None
     ):
         """Initializes class for simulating Lotka Voltera dynamics.
 
@@ -91,12 +104,19 @@ class LotkaVolteraSDE(StochasticDifferentialEquation, LotkaVoltera):
             interaction_mat: A weighted (n, n) matrix of interspecies
                 interactions. (A in the above equation.)
             sigma (float): Coefficient on noise. 
+            measurement_noise_std (ndarray): None, or a vector with shape (n,)
+                where each entry corresponds to the standard deviation of the
+                measurement noise for that particular dimension of the dynamic
+                model. For example, if the dynamic model had two variables x1
+                and x2 and `measurement_noise_std = [1, 10]`, then
+                independent gaussian noise with standard deviation 1 and 10
+                will be added to x1 and x2 respectively at each point in time.  
         """
         # The following line actually uses the LotkaVoltera.__init__()
         # function by skipping StochasticDifferentialEquation in this
         # class's multiple resolution order.
         super(StochasticDifferentialEquation, self).__init__(
-            growth_rates, capacities, interaction_mat)
+            growth_rates, capacities, interaction_mat, measurement_noise_std)
         self.sigma = sigma
 
     def drift(self, x, t):

@@ -104,7 +104,7 @@ def test_benchmark_methods():
     # Define parameters
     gen_ctrf_kwargs = dict(
         model_type=interfere.dynamics.Liping3DQuadFinance,
-        model_params={"sigma": 0.5},
+        model_params={"sigma": 0.5, "measurement_noise_std": np.ones(3)},
         intervention_type=interfere.PerfectIntervention,
         intervention_params={"intervened_idxs": 0, "constants": 0.1},
         initial_condition_iter=[0.01 * np.ones(3)],

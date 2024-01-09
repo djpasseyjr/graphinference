@@ -11,7 +11,8 @@ class CoupledLogisticMaps(DynamicModel):
         self,
         adjacency_matrix: np.array,
         logistic_param=3.72,
-        eps=0.5
+        eps=0.5,
+        measurement_noise_std: Optional[np.ndarray] = None
     ):
         """N-dimensional coupled logistic map.
         
@@ -33,11 +34,18 @@ class CoupledLogisticMaps(DynamicModel):
                 r, where the map is f(x) = rx(1-x).
             eps (float): A parameter that controls the relative strenth of    
                 coupling. High epsilon means greater connection to neighbors.
+            measurement_noise_std (ndarray): None, or a vector with shape (n,)
+                where each entry corresponds to the standard deviation of the
+                measurement noise for that particular dimension of the dynamic
+                model. For example, if the dynamic model had two variables x1
+                and x2 and `measurement_noise_std = [1, 10]`, then
+                independent gaussian noise with standard deviation 1 and 10
+                will be added to x1 and x2 respectively at each point in time.
         """
         self.adjacency_matrix = adjacency_matrix
         self.logistic_param = logistic_param
         self.eps = eps
-        super().__init__(self.adjacency_matrix.shape[0])
+        super().__init__(self.adjacency_matrix.shape[0], measurement_noise_std)
     
     def logistic_map(self, x):
         return self.logistic_param * x * (1 - x)
@@ -121,8 +129,5 @@ class CoupledLogisticMaps(DynamicModel):
         if intervention is not None:
             X_do[nsteps - 1] = intervention(
                 X_do[nsteps - 1], time_points[nsteps - 1])
-        
-        if measurement_noise_std is not None:
-            X_do = self.add_measurement_noise(X_do, measurement_noise_std, rng)
 
         return X_do

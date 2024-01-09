@@ -15,7 +15,6 @@ class OrdinaryDifferentialEquation(DynamicModel):
         initial_condition: np.ndarray,
         time_points: np.ndarray,
         intervention: Optional[Callable[[np.ndarray, float], np.ndarray]]= None,
-        measurement_noise_std: Optional[np.ndarray] = None,
         rng: np.random.mtrand.RandomState = DEFAULT_RANGE
     ) -> np.ndarray:
         """
@@ -44,13 +43,6 @@ class OrdinaryDifferentialEquation(DynamicModel):
 
                 where x_do is the trajectory of the intervened system and g is 
                 the intervention function.
-            measurement_noise_std (ndarray): None, or a vector with shape (n,)
-                where each entry corresponds to the standard deviation of the
-                measurement noise for that particular dimension of the dynamic
-                model. For example, if the dynamic model had two variables x1
-                and x2 and `measurement_noise_std = [1, 10]`, then
-                independent gaussian noise with standard deviation 1 and 10
-                will be added to x1 and x2 respectively at each point in time.
             rng: A numpy random state for reproducibility. (Uses numpy's mtrand 
                 random number generator by default.)
 
@@ -72,8 +64,8 @@ class OrdinaryDifferentialEquation(DynamicModel):
         X_do = np.vstack([intervention(x, t) for x, t in zip(X, time_points)])
 
         # Optionally add measurement noise
-        if measurement_noise_std is not None:
-            X_do = self.add_measurement_noise(X_do, measurement_noise_std, rng)
+        if self.measurement_noise_std is not None:
+            X_do = self.add_measurement_noise(X_do, rng)
 
         return X_do
 
@@ -101,7 +93,6 @@ class StochasticDifferentialEquation(DynamicModel):
         time_points: np.ndarray,
         intervention: Optional[Callable[[np.ndarray, float], np.ndarray]]= None,
         # TODO: Change measurement noise so it is a data member.
-        measurement_noise_std: Optional[np.ndarray] = None,
         rng: np.random.mtrand.RandomState = DEFAULT_RANGE,
         dW: Optional[np.ndarray] = None,
     ) -> np.ndarray:
@@ -130,13 +121,6 @@ class StochasticDifferentialEquation(DynamicModel):
 
                 where x_do is the trajectory of the intervened system and g is 
                 the intervention function.
-            measurement_noise_std (ndarray): None, or a vector with shape (n,)
-                where each entry corresponds to the standard deviation of the
-                measurement noise for that particular dimension of the dynamic
-                model. For example, if the dynamic model had two variables x1
-                and x2 and `measurement_noise_std = [1, 10]`, then
-                independent gaussian noise with standard deviation 1 and 10
-                will be added to x1 and x2 respectively at each point in time.
             rng: A numpy random state for reproducibility. (Uses numpy's mtrand 
                 random number generator by default.)
             dW: optional array of shape (len(time_points)-1, self.dim). This is
@@ -185,9 +169,8 @@ class StochasticDifferentialEquation(DynamicModel):
 
             X_do[i + 1, :] = next_x
 
-        # Optionally add measurement noise
-        if measurement_noise_std is not None:
-            X_do = self.add_measurement_noise(X_do, measurement_noise_std, rng)
+        if self.measurement_noise_std is not None:
+            X_do = self.add_measurement_noise(X_do, rng)
         
         return X_do
 
