@@ -133,14 +133,14 @@ def test_ornstein_uhlenbeck():
 
 
 def test_coupled_logistic_map():
-    rng = np.random.default_rng(11)
+    rng = np.random.default_rng(10)
 
-    A = rng.random((5, 5)) < 0.1
+    A = rng.random((10, 10)) < 0.5
     model = interfere.dynamics.CoupledLogisticMaps(A)
-    x0 = rng.random(5)
+    x0 = rng.random(10)
     t = range(100)
     X = model.simulate(x0, t)
-    assert X.shape == (100, 5)
+    assert X.shape == (100, 10)
 
     # Make an intervention function
     interv_idx = 0
@@ -172,22 +172,25 @@ def test_normal_noise():
     assert np.all(X_do[:, 1:] == X[:, 1:])
 
 
-    def test_noise_dynamics():
-        noise_models = [StandardNormalNoise, StandardCauchyNoise, 
-            StandardExponentialNoise, StandardGammaNoise, StandardTNoise]
-        
-        f = interfere.perfect_intervention(0, 30.0)
-        for model_class in noise_models:
-            rng = np.random.default_rng(11)
-            X_do = model.simulate(np.ones(5), np.arange(1000), f, rng=rng)
+def test_noise_dynamics():
+    noise_models = [StandardNormalNoise, StandardCauchyNoise, 
+        StandardExponentialNoise, StandardGammaNoise, StandardTNoise]
+    
+    f = interfere.perfect_intervention(0, 30.0)
+    for model_class in noise_models:
+        dim = 5
+        model = model_class(dim)
 
-            # Check that the intervention was applied
-            assert np.all(X_do[:, 0] == 30.0)
+        rng = np.random.default_rng(11)
+        X_do = model.simulate(np.ones(dim), np.arange(1000), f, rng=rng)
 
-            # Check that the array is the right size
-            assert X_do.shape == (1000, 5)
+        # Check that the intervention was applied
+        assert np.all(X_do[:, 0] == 30.0)
 
-            # Check that random state is working properly
-            rng = np.random.default_rng(11)
-            X_do2 = model.simulate(np.ones(5), np.arange(1000), f, rng=rng)
-            assert np.all(X_do == X_do2)
+        # Check that the array is the right size
+        assert X_do.shape == (1000, dim)
+
+        # Check that random state is working properly
+        rng = np.random.default_rng(11)
+        X_do2 = model.simulate(np.ones(dim), np.arange(1000), f, rng=rng)
+        assert np.all(X_do == X_do2)
