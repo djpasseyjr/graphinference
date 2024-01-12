@@ -1,3 +1,4 @@
+from .arithmetic_brownian_motion import ArithmeticBrownianMotion
 from .base import  OrdinaryDifferentialEquation, StochasticDifferentialEquation
 from .coupled_logistic_maps import CoupledLogisticMaps
 from .lotka_voltera import LotkaVoltera, LotkaVolteraSDE

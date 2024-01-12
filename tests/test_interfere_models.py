@@ -194,3 +194,30 @@ def test_noise_dynamics():
         rng = np.random.default_rng(11)
         X_do2 = model.simulate(np.ones(dim), np.arange(1000), f, rng=rng)
         assert np.all(X_do == X_do2)
+
+
+def test_arithmetic_brownian_motion():
+    n = 1000
+    m = 1000
+    mu = np.ones(n) * -1
+    sigma = np.ones(n) * 0.1
+    model = interfere.dynamics.ArithmeticBrownianMotion(mu=mu, sigma=sigma)
+
+    rng = np.random.default_rng(27)
+    time_points = np.linspace(0, 10, m)
+    x0 = np.ones(n)
+    dW = np.random.randn(m, n)
+    X = model.simulate(x0, time_points, rng=rng, dW=dW)
+
+    assert X.shape == (m, n)
+
+    # Test that expectation matches the analytic expectation
+    diff = np.mean(X, axis=1)  - (mu[0] * time_points + x0[0])
+    assert np.all(np.abs(diff) < 0.2)
+
+    f = interfere.perfect_intervention(0, 10)
+    Xdo = model.simulate(x0, time_points, f, rng=rng, dW=dW)
+
+    assert np.any(Xdo != X)
+    assert np.all(Xdo[:, 1:] == X[:, 1:])
+    assert np.all(Xdo[:, 0] == 10)
