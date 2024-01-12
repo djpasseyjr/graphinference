@@ -12,7 +12,7 @@ from .simple_linear_sdes import (
     attracting_fixed_point_4d_linear_sde
 )
 
-from .uncorrelated_noise_dynamics import (
+from .decoupled_noise_dynamics import (
     StandardNormalNoise,
     StandardCauchyNoise,
     StandardExponentialNoise,
