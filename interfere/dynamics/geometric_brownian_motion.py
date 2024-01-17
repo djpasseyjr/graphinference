@@ -5,7 +5,7 @@ import numpy as np
 from .base import StochasticDifferentialEquation
 
 
-class ArithmeticBrownianMotion(StochasticDifferentialEquation):
+class GeometricBrownianMotion(StochasticDifferentialEquation):
 
     def __init__(
         self,
@@ -13,13 +13,13 @@ class ArithmeticBrownianMotion(StochasticDifferentialEquation):
         sigma: np.ndarray,
         measurement_noise_std: Optional[np.ndarray] = None
     ):
-        """Initializes n-dimensional arithmetic brownian motion process.
+        """Initializes decoupled n-dimensional geometric brownian motion.
 
-        dX_i =  mu_i dt + sigma_i dW_i
+        dX_i =  mu_i X_i dt + sigma_i X_i dW_i
 
         Args:
             mu (ndarray): A (n,) vector.
-            sigma (ndarray): A (n,) vector.
+            sigma (ndarray): A (n,) matrix.
             measurement_noise_std (ndarray): None, or a vector with shape (n,)
                 where each entry corresponds to the standard deviation of the
                 measurement noise for that particular dimension of the dynamic
@@ -43,7 +43,7 @@ class ArithmeticBrownianMotion(StochasticDifferentialEquation):
         self.sigma = sigma
 
     def drift(self, x: np.ndarray, t: float):
-        return self.mu
+        return self.mu * x
     
     def noise(self, x: np.ndarray, t: float):
-        return np.diag(self.sigma)
+        return np.diag(self.sigma) * x
